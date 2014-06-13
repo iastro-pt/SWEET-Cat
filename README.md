@@ -3,6 +3,13 @@ SWEET-Cat
 
 Repository for the SWEET-Cat(alog), a table for FGKM stars hosting exoplanets.
 
+Here is the software for updating SWEET-Cat, and probably some of the latest
+versions and the used version on the
+[webpage](https://www.astro.up.pt/resources/sweet-cat/)
+
+This is [an example](http://example.com/ "Title") inline link.
+
+
 
 TODO
 ====
@@ -18,5 +25,5 @@ TODO
      Simbad script (see e.g. in folder).
    - The toughest challenge must be to find values in articles. I guess we must
      do this part manually, but we might be able to make a script that notifies
-     us, if it finds article from Santos or Sousa, so we can set the homogenity
+     us, if with finds article from Santos or Sousa, so we can set the homogenity
      flag to 1.
