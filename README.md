@@ -26,6 +26,3 @@ TODO
      do this part manually, but we might be able to make a script that notifies
      us, if with finds article from Santos or Sousa, so we can set the homogenity
      flag to 1.
-
-
-testing...
