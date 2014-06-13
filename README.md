@@ -5,9 +5,8 @@ Repository for the SWEET-Cat(alog), a table for FGKM stars hosting exoplanets.
 
 Here is the software for updating SWEET-Cat, and probably some of the latest
 versions and the used version on the
-[webpage](https://www.astro.up.pt/resources/sweet-cat/)
+[SWEET-Cat webpage](https://www.astro.up.pt/resources/sweet-cat/ "Title")
 
-This is [an example](http://example.com/ "Title") inline link.
 
 
 
