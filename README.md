@@ -10,6 +10,20 @@ Note that the latest version is always available for download on the webpage.
 
 
 
+Installation
+============
+It is now possible to get an update everytime there is a new planet on
+[exoplanet.eu](http://www.exoplanet.eu/catalog).
+
+To do this, place [SWEET-Cat] in your [PATH]. If you want an update everyday at
+13 you can use crontab. Add the following line with [crontab -e]
+
+[0 13 * * * /full/path/to/script/SWEET-Cat]
+
+Remember to change the receiver and sender in [checkExoplanet.py] line 45 and
+46. You can also decide to change the [mail.txt] for whatever you like. This is
+the text in the mail.
+
 TODO
 ====
 
