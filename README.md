@@ -30,6 +30,7 @@ TODO
    - [x] Make a function that look at the latest update on SWEET-Cat and compare
      with the latest update on exoplanet.eu. If not the same, SWEET-Cat should
      be updated.
+   - [ ] Find how many new exoplanets is found and send that in email as well.
    - [ ] Many of the SWEET-Cat things can be done automatically, e.g. write all the
      things in the table.
    - [ ] Create files automatically for ParralaxSpec.py, TorresMass.py, and
