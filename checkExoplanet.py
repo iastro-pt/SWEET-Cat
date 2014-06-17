@@ -11,7 +11,12 @@ from datetime import datetime
 import smtplib
 from email.mime.text import MIMEText
 
+SC = csv.reader(open('WEBSITE_online.rdb'), delimiter='\t')
+SC = sorted(SC, key=operator.itemgetter(24), reverse=True)
+
 # Link to download the latest table from exoplanets.eu
+tmp = SC[0][-3]
+update_sweetcat = datetime(int(tmp[0:4]), int(tmp[5:7]), int(tmp[8:10]))
 link_csv = 'http://www.exoplanet.eu/catalog/csv/?f=%22radial%22+IN+detection'
 link_csv += '+OR+%22astrometry%22+IN+detection+OR+%22transit%22+IN+detection'
 
@@ -24,24 +29,26 @@ exoplanet = csv.reader(open("exo.csv"))
 exoplanet = sorted(exoplanet, key=operator.itemgetter(38), reverse=True)
 
 
-tmp = exoplanet[0][38]
-update_exoplanet = datetime(int(tmp[0:4]), int(tmp[5:7]), int(tmp[8:10]))
+s = 0
+#names
+for row in exoplanet:
+    tmp = row[38]
+    if tmp.startswith(' updated'):
+        pass
+    else:
+        update_exoplanet = datetime(int(tmp[0:4]), int(tmp[5:7]), int(tmp[8:10]))
+        if update_exoplanet > update_sweetcat:
+            s += 1
 
-SC = csv.reader(open('WEBSITE_online.rdb'), delimiter='\t')
-SC = sorted(SC, key=operator.itemgetter(24), reverse=True)
-
-tmp = SC[0][-3]
-update_sweetcat = datetime(int(tmp[0:4]), int(tmp[5:7]), int(tmp[8:10]))
-
-if update_exoplanet > update_sweetcat:
-    print "New exoplanet available!"
+if s > 0:
+    print s, "new exoplanet available!"
     print "Sending mail to maintainer"
 
     fp = open('mail.txt', 'rb')
     msg = MIMEText(fp.read())
     fp.close()
 
-    msg['Subject'] = 'Update available to SWEET-Cat'
+    msg['Subject'] = 'Update available to SWEET-Cat: ' + str(s) + ' new exoplanets'
     msg['From'] = 'daniel.andreasen@astro.up.pt'
     msg['To'] = 'daniel.andreasen@astro.up.pt'
 
