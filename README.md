@@ -30,12 +30,15 @@ TODO
    - [x] Make a function that look at the latest update on SWEET-Cat and compare
      with the latest update on exoplanet.eu. If not the same, SWEET-Cat should
      be updated.
-   - [ ] Find how many new exoplanets is found and send that in email as well.
+   - [x] Find how many new exoplanets is found and send that in email as well.
+   - [ ] Make a good interface between checkExoplanet.py (which seems to be the
+     main function) and the other scripts. `os.system("python Simbad.py
+     NEWNEW1")` is not nice...
    - [ ] Many of the SWEET-Cat things can be done automatically, e.g. write all the
      things in the table.
    - [ ] Create files automatically for ParralaxSpec.py, TorresMass.py, and
      Simbad.py.
-   - [ ] Create a NEWNEW1. This one is just a file with the names for creating the
+   - [x] Create a NEWNEW1. This one is just a file with the names for creating the
      Simbad script (see e.g. in folder).
    - [ ] The toughest challenge must be to find values in articles. I guess we must
      do this part manually, but we might be able to make a script that notifies
