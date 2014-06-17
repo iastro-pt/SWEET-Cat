@@ -38,7 +38,7 @@ for row in exoplanet:
         pass
     else:
         update_exoplanet = datetime(int(tt[0:4]), int(tt[5:7]), int(tt[8:10]))
-        if update_exoplanet < update_sweetcat:
+        if update_exoplanet > update_sweetcat:
             s += 1
             names.append(row[0])
 
@@ -68,9 +68,9 @@ if s > 0:
     msg['To'] = 'daniel.andreasen@astro.up.pt'
 
     s = smtplib.SMTP('mail.astro.up.pt')
-#    s.sendmail('daniel.andreasen@astro.up.pt',
-#               ['daniel.andreasen@astro.up.pt'], msg.as_string())
-#    s.quit()
+    s.sendmail('daniel.andreasen@astro.up.pt',
+               ['daniel.andreasen@astro.up.pt'], msg.as_string())
+    s.quit()
 else:
     print "No new updates seems to be available."
     print "SWEET-Cat should be up to date"
