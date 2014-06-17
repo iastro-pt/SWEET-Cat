@@ -6,6 +6,7 @@ import csv
 import operator
 import urllib2
 from datetime import datetime
+import os
 
 # For fun, but still useful
 import smtplib
@@ -30,32 +31,46 @@ exoplanet = sorted(exoplanet, key=operator.itemgetter(38), reverse=True)
 
 
 s = 0
-#names
+names = []
 for row in exoplanet:
-    tmp = row[38]
-    if tmp.startswith(' updated'):
+    tt = row[38]
+    if tt.startswith(' updated'):
         pass
     else:
-        update_exoplanet = datetime(int(tmp[0:4]), int(tmp[5:7]), int(tmp[8:10]))
-        if update_exoplanet > update_sweetcat:
+        update_exoplanet = datetime(int(tt[0:4]), int(tt[5:7]), int(tt[8:10]))
+        if update_exoplanet < update_sweetcat:
             s += 1
+            names.append(row[0])
 
 if s > 0:
     print s, "new exoplanet available!"
     print "Sending mail to maintainer"
 
+    # Preparing list for SIMBAD
+    t = ''
+    for i, name in enumerate(names):
+        if i == 0:
+            t += name
+        else:
+            t += '\n' + name
+    with open('NEWNEW1', 'w') as f:
+        f.write(t)
+    os.system("python Simbad.py NEWNEW1")
+
+    # Sending the mail
     fp = open('mail.txt', 'rb')
     msg = MIMEText(fp.read())
     fp.close()
 
-    msg['Subject'] = 'Update available to SWEET-Cat: ' + str(s) + ' new exoplanets'
+    msg['Subject'] = 'Update available to SWEET-Cat: ' + str(s) +\
+        ' new exoplanets'
     msg['From'] = 'daniel.andreasen@astro.up.pt'
     msg['To'] = 'daniel.andreasen@astro.up.pt'
 
     s = smtplib.SMTP('mail.astro.up.pt')
-    s.sendmail('daniel.andreasen@astro.up.pt',
-               ['daniel.andreasen@astro.up.pt'], msg.as_string())
-    s.quit()
+#    s.sendmail('daniel.andreasen@astro.up.pt',
+#               ['daniel.andreasen@astro.up.pt'], msg.as_string())
+#    s.quit()
 else:
     print "No new updates seems to be available."
     print "SWEET-Cat should be up to date"
