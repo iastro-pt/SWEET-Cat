@@ -6,7 +6,8 @@ import csv
 import operator
 import urllib2
 from datetime import datetime
-import os
+
+from Simbad import simbad
 
 # For fun, but still useful
 import smtplib
@@ -38,7 +39,7 @@ for row in exoplanet:
         pass
     else:
         update_exoplanet = datetime(int(tt[0:4]), int(tt[5:7]), int(tt[8:10]))
-        if update_exoplanet > update_sweetcat:
+        if update_exoplanet < update_sweetcat:
             s += 1
             names.append(row[0])
 
@@ -47,15 +48,7 @@ if s > 0:
     print "Sending mail to maintainer"
 
     # Preparing list for SIMBAD
-    t = ''
-    for i, name in enumerate(names):
-        if i == 0:
-            t += name
-        else:
-            t += '\n' + name
-    with open('NEWNEW1', 'w') as f:
-        f.write(t)
-    os.system("python Simbad.py NEWNEW1")
+    simbad(names)
 
     # Sending the mail
     fp = open('mail.txt', 'rb')
