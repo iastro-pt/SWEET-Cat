@@ -60,9 +60,9 @@ if s > 0:
     msg['From'] = 'daniel.andreasen@astro.up.pt'
     msg['To'] = 'daniel.andreasen@astro.up.pt'
 
-    s = smtplib.SMTP('mail.astro.up.pt')
-    s.sendmail('daniel.andreasen@astro.up.pt',
-               ['daniel.andreasen@astro.up.pt'], msg.as_string())
+    s = smtplib.SMTP('write smtp server here')
+    s.sendmail('email from goes here',
+               ['email to goes here'], msg.as_string())
     s.quit()
 else:
     print "No new updates seems to be available."
