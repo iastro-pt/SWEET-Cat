@@ -39,7 +39,7 @@ for row in exoplanet:
         pass
     else:
         update_exoplanet = datetime(int(tt[0:4]), int(tt[5:7]), int(tt[8:10]))
-        if update_exoplanet < update_sweetcat:
+        if update_exoplanet > update_sweetcat:
             s += 1
             names.append(row[0])
 
