@@ -18,7 +18,6 @@ inputMOOG = sys.argv[1]
 
 # Calculate a mass using the Torres calibration
 def massTorres(teff, erteff, logg, erlogg, feh, erfeh):
-
     ntrials = 10000
     randomteff = teff + erteff * np.random.randn(ntrials)
     randomlogg = logg + erlogg * np.random.randn(ntrials)
@@ -57,7 +56,6 @@ def massTorres(teff, erteff, logg, erlogg, feh, erfeh):
 
 
 def radTorres(teff, erteff, logg, erlogg, feh, erfeh):
-
     ntrials = 10000
     randomteff = teff + erteff*np.random.randn(ntrials)
     randomlogg = logg + erlogg*np.random.randn(ntrials)
