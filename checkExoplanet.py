@@ -43,6 +43,14 @@ for row in exoplanet:
             s += 1
             names.append(row[0])
 
+# Simbad does not like planet names, so remove 'b', 'c' etc. in the of the star
+# name
+letters = ['b', 'c', 'd', 'e', 'f', 'g']
+for i in range(len(names)):
+    for letter in letters:
+        if names[i].endswith(' ' + letter):
+            names[i] = names[i][0:-2]
+
 if s > 0:
     print s, "new exoplanet available!"
     print "Sending mail to maintainer"
