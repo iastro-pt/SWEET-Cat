@@ -1,5 +1,6 @@
 *.pyc
 checkExoplanet_CAUP.py
+checkExoplanet_controversial_CAUP.py
 *.rdb
 
 !WEBSITE_online.rdb
