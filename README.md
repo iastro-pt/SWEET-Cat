@@ -36,6 +36,8 @@ TODO
      NEWNEW1")` is not nice...
    - [x] Create a NEWNEW1. This one is just a file with the names for creating the
      Simbad script (see e.g. in folder).
+   - [ ] When updating, make sure that the star is not already in SWEET-Cat. If
+     that is the case, just look at what have been updated.
    - [ ] It is also important to check for false-positives, so we can remove
      them as well.
    - [ ] Many of the SWEET-Cat things can be done automatically, e.g. write all the
