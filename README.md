@@ -40,6 +40,8 @@ TODO
      them as well.
    - [ ] When updating, make sure that the star is not already in SWEET-Cat. If
      that is the case, just look at what have been updated.
+   - [ ] If the star is already in SWEET-Cat, find a way to deal with it so I
+     don't get notifications all the time...
    - [ ] Many of the SWEET-Cat things can be done automatically, e.g. write all the
      things in the table.
    - [ ] Create files automatically for ParralaxSpec.py, TorresMass.py, and
