@@ -13,8 +13,25 @@ from Simbad import simbad
 import smtplib
 from email.mime.text import MIMEText
 
+
+def planetInString(planet):
+    """
+    Simbad does not like planet names, so remove 'b', 'c' etc. in the of the
+    star name
+    """
+    letters = ['b', 'c', 'd', 'e', 'f', 'g']
+    for letter in letters:
+        if planet.endswith(' ' + letter):
+            planet = planet[0:-2]
+    return planet
+
+
 SC = csv.reader(open('WEBSITE_online.rdb'), delimiter='\t')
 SC = sorted(SC, key=operator.itemgetter(24), reverse=True)
+starsID = []
+for i in range(len(SC)):
+    starsID.append(SC[i][0])
+
 
 # Link to download the latest table from exoplanets.eu
 tmp = SC[0][-3]
@@ -33,23 +50,15 @@ exoplanet = sorted(exoplanet, key=operator.itemgetter(38), reverse=True)
 
 s = 0
 names = []
-for row in exoplanet:
+for row in exoplanet[0:-1]:  # To avoid the header.
     tt = row[38]
-    if tt.startswith(' updated'):
-        pass
-    else:
-        update_exoplanet = datetime(int(tt[0:4]), int(tt[5:7]), int(tt[8:10]))
-        if update_exoplanet > update_sweetcat:
+    update_exoplanet = datetime(int(tt[0:4]), int(tt[5:7]), int(tt[8:10]))
+    if update_exoplanet > update_sweetcat:
+        updated_star = planetInString(row[0])
+        if updated_star not in starsID:
             s += 1
-            names.append(row[0])
+            names.append(updated_star)
 
-# Simbad does not like planet names, so remove 'b', 'c' etc. in the of the star
-# name
-letters = ['b', 'c', 'd', 'e', 'f', 'g']
-for i in range(len(names)):
-    for letter in letters:
-        if names[i].endswith(' ' + letter):
-            names[i] = names[i][0:-2]
 
 if s > 0:
     print s, "new exoplanet available!"
