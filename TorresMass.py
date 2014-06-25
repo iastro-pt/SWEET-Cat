@@ -99,7 +99,6 @@ def radTorres(teff, erteff, logg, erlogg, feh, erfeh):
 
 
 with open(inputMOOG) as f:
-
     f.readline()
     f.readline()
     lines = f.readlines()

@@ -1,8 +1,4 @@
 echo Simbad script for planet hosts
-format object form1 "GJ 832|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
-query id GJ 832
-format object form1 "GJ 832|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
-query id GJ 832
-format object form1 "HD 209458|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
-query id HD 209458
+format object form1 "KOI-1257 A|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
+query id KOI 1257 A
 format display
