@@ -105,9 +105,8 @@ with open(inputMOOG) as f:
 
 p = [0.79102951, 0.0 - 0.57480278,  0.70062477]
 
-print "Name,  mass,   errmass"
-print "Name, radius, errRadius"
-print "======================="
+print "Name         mass\t\t   radius"
+print "======================="*2
 for line in lines:
     words = line.split('\t')
     name = words[0]
@@ -120,16 +119,10 @@ for line in lines:
     erfeh = float(words[6])
 
     M = massTorres(teff, erteff, logg, erlogg, feh, erfeh)
-
     mass = str(round(p[0]*M[0]*M[0] + p[1]*M[0] + p[2], 2))
     ermass = str(round(M[1], 2))
+    R = radTorres(teff, erteff, logg, erlogg, feh, erfeh)
+    rad = str(round(R[0], 2))
+    errad = str(round(R[1], 2))
 
-    print name, mass, ermass
-
-    rad = 1
-    if rad:
-        R = radTorres(teff, erteff, logg, erlogg, feh, erfeh)
-        rad = str(round(R[0], 2))
-        errad = str(round(R[1], 2))
-
-        print name, rad, errad
+    print name+ ':', mass+ '+/-'+ ermass, '  \t\t', rad+ '+/-'+ errad
