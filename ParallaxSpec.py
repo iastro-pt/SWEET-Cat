@@ -7,11 +7,11 @@ import numpy as np
 
 inputPAR = sys.argv[1]
 
-# Calculate the bolometric correction, given the temperature
-
 
 def bolcor(teff):
-
+    """
+    Calculate the bolometric correction, given the temperature
+    """
     lteff = np.log10(teff)
 
     if lteff < 3.7:
@@ -35,9 +35,10 @@ def bolcor(teff):
         return bcflow
 
 
-# Calculate the parallax, given the mass
 def parallax(teff, logg, vmag, mass, bcflow):
-
+    """
+    Calculate the parallax, given the mass
+    """
     par = 10.**((logg - 4.44 - np.log(mass)/np.log(10.) - 4.*np.log(teff) /
                 np.log(10.) + 4.*np.log(5777.)/np.log(10.) - 0.4*(vmag +
                                                                   bcflow) -
@@ -47,17 +48,12 @@ def parallax(teff, logg, vmag, mass, bcflow):
 
 
 with open(inputPAR) as f:
-
-    f.readline()
-    f.readline()
     lines = f.readlines()
 
 for line in lines:
-
-    words = line.split('\t')
+    words = line.split('    ')
 
     name = words[0]
-
     teff = float(words[1])
     logg = float(words[2])
     mass = float(words[3])
@@ -65,4 +61,6 @@ for line in lines:
 
     bcflow = bolcor(teff)
     par = parallax(teff, logg, vmag, mass, bcflow)
-    print name, par
+    print "Name        parallax"
+    print "===================="
+    print name+':  ', round(par, 2)
