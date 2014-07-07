@@ -42,6 +42,9 @@ TODO
      that is the case, just look at what have been updated.
    - [x] If the star is already in SWEET-Cat, find a way to deal with it so I
      don't get notifications all the time...
+   - [ ] Remove duplicate planet host, if e.g. two exoplanets have been
+     detected around the same host, the host should only appear once in the
+     NEWNEW1 file.
    - [ ] Many of the SWEET-Cat things can be done automatically, e.g. write all the
      things in the table.
    - [ ] Create files automatically for ParralaxSpec.py, TorresMass.py, and
