@@ -3,5 +3,6 @@ checkExoplanet_CAUP.py
 checkExoplanet_controversial_CAUP.py
 *.rdb
 oldVersions
+mailinfo.txt
 
 !WEBSITE_online.rdb
