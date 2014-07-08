@@ -2,5 +2,6 @@
 checkExoplanet_CAUP.py
 checkExoplanet_controversial_CAUP.py
 *.rdb
+oldVersions
 
 !WEBSITE_online.rdb
