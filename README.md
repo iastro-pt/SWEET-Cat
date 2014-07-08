@@ -6,13 +6,13 @@ Repository for the SWEET-Cat(alog), a table for FGKM stars hosting exoplanets.
 Here is the software for updating SWEET-Cat, and probably some of the latest
 versions and the currently used version on the
 [SWEET-Cat webpage](https://www.astro.up.pt/resources/sweet-cat/).
-Note that the latest version is always available for download on the webpage.
+Note that the latest version is always available for download on the web page.
 
 
 
 Installation
 ============
-It is now possible to get an update everytime there is a new planet on
+It is now possible to get an update every time there is a new planet on
 [exoplanet.eu](http://www.exoplanet.eu/catalog).
 
 To do this, place `SWEET-Cat` in your `PATH`. If you want an update everyday at
@@ -42,6 +42,9 @@ TODO
      that is the case, just look at what have been updated.
    - [x] If the star is already in SWEET-Cat, find a way to deal with it so I
      don't get notifications all the time...
+   - [ ] Would be nice if the two scripts for checking for updates have a
+     common file with information necessary for sending the mail, like the
+     sender, reciever, and smpt information.
    - [ ] Remove duplicate planet host, if e.g. two exoplanets have been
      detected around the same host, the host should only appear once in the
      NEWNEW1 file.
