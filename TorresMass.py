@@ -1,14 +1,16 @@
 #!/usr/bin/python
-#
-# Program to find the Stellar Mass through Torres
-#
-# The program needs one inputfile (rdb format):
-# File format of stellar atmosphere parameters: Name Teff errTeff Logg errLogg
-# Metal errMetal (...)
-#
-# Usage: python TorresMass.py file.rdb
-#
-# Program will print the output on the screen
+
+"""
+Program to find the Stellar Mass through Torres
+
+The program needs one inputfile (rdb format):
+File format of stellar atmosphere parameters:
+Name Teff errTeff Logg errLogg Metal errMetal (...)
+
+Usage: python TorresMass.py file.rdb
+
+Program will print the output on the screen
+"""
 
 import sys
 import numpy as np
@@ -36,7 +38,6 @@ def massTorres(teff, erteff, logg, erlogg, feh, erfeh):
     logM = np.zeros(ntrials)
 
     for i in xrange(len(randomteff)):
-
         X = np.log10(randomteff[i]) - 4.1
         logMass = a1 + a2 * X + a3 * X * X + a4 * X * X * X + a5 *\
             randomlogg[i] * randomlogg[i] + a6 * randomlogg[i] *\
@@ -74,7 +75,6 @@ def radTorres(teff, erteff, logg, erlogg, feh, erfeh):
     logR = np.zeros(ntrials)
 
     for i in range(len(randomteff)):
-
         X = np.log10(randomteff[i]) - 4.1
         logRad = b1 + b2 * X + b3 * X * X + b4 * X * X * X + b5 *\
             randomlogg[i] * randomlogg[i] + b6 * randomlogg[i] *\
@@ -93,16 +93,10 @@ def radTorres(teff, erteff, logg, erlogg, feh, erfeh):
     return meanRad, sigRad
 
 
-######################################################################
-# Main program
-######################################################################
-
-
 with open(inputMOOG) as f:
     f.readline()
     f.readline()
     lines = f.readlines()
-
 p = [0.79102951, 0.0 - 0.57480278,  0.70062477]
 
 print "Name         mass\t\t   radius"
@@ -125,4 +119,4 @@ for line in lines:
     rad = str(round(R[0], 2))
     errad = str(round(R[1], 2))
 
-    print name+ ':', mass+ '+/-'+ ermass, '  \t\t', rad+ '+/-'+ errad
+    print name + ':', mass + '+/-' + ermass, '  \t\t', rad + '+/-' + errad
