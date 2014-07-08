@@ -72,14 +72,18 @@ if s > 0:
     msg = MIMEText(fp.read())
     fp.close()
 
+    with open('mailinfo.txt', 'rb') as f:
+        sender = f.readline().split(': ').strip('\n')
+        receiver = f.readline().split(': ').strip('\n')
+        smtp = f.readline().split(': ').strip('\n')
+
     msg['Subject'] = 'Update available to SWEET-Cat: ' + str(s) +\
         ' new exoplanets'
-    msg['From'] = 'daniel.andreasen@astro.up.pt'
-    msg['To'] = 'daniel.andreasen@astro.up.pt'
+    msg['From'] = sender
+    msg['To'] = receiver
 
-    s = smtplib.SMTP('write smtp server here')
-    s.sendmail('email from goes here',
-               ['email to goes here'], msg.as_string())
+    s = smtplib.SMTP(smtp)
+    s.sendmail(sender, [receiver], msg.as_string())
     s.quit()
 else:
     print "No new updates seems to be available."
