@@ -45,7 +45,7 @@ TODO
    - [ ] Would be nice if the two scripts for checking for updates have a
      common file with information necessary for sending the mail, like the
      sender, reciever, and smpt information.
-   - [ ] Remove duplicate planet host, if e.g. two exoplanets have been
+   - [x] Remove duplicate planet host, if e.g. two exoplanets have been
      detected around the same host, the host should only appear once in the
      NEWNEW1 file.
    - [ ] Many of the SWEET-Cat things can be done automatically, e.g. write all the

@@ -65,7 +65,7 @@ if s > 0:
     print "Sending mail to maintainer"
 
     # Preparing list for SIMBAD
-    simbad(names)
+    simbad(set(names))
 
     # Sending the mail
     fp = open('mail.txt', 'rb')
