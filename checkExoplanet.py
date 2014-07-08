@@ -53,7 +53,7 @@ names = []
 for row in exoplanet[0:-1]:  # To avoid the header.
     tt = row[38]
     update_exoplanet = datetime(int(tt[0:4]), int(tt[5:7]), int(tt[8:10]))
-    if update_exoplanet < update_sweetcat:
+    if update_exoplanet > update_sweetcat:
         updated_star = planetInString(row[0])
         if updated_star not in starsID:
             s += 1
