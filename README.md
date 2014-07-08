@@ -24,6 +24,19 @@ Remember to change the receiver and sender in `checkExoplanet.py` line 45 and
 46. You can also decide to change the `mail.txt` for whatever you like. This is
 the text in the mail.
 
+Setting up the mail
+===================
+A file names `mailinfo.txt` needs to be created. It should looks like the
+following
+
+    sender: from@host.com
+    receiver: to@hotst.com
+    smtp: mail.com
+
+Change the three options with what works for you. Questions can be directed to
+the author.
+
+
 TODO
 ====
 
@@ -42,7 +55,7 @@ TODO
      that is the case, just look at what have been updated.
    - [x] If the star is already in SWEET-Cat, find a way to deal with it so I
      don't get notifications all the time...
-   - [ ] Would be nice if the two scripts for checking for updates have a
+   - [x] Would be nice if the two scripts for checking for updates have a
      common file with information necessary for sending the mail, like the
      sender, reciever, and smpt information.
    - [x] Remove duplicate planet host, if e.g. two exoplanets have been
