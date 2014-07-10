@@ -61,7 +61,7 @@ for row in exoplanet[0:-1]:  # To avoid the header.
 
 
 if s > 0:
-    print s, "new exoplanet available!"
+    print len(set(names)), "new exoplanet available!"
     print "Sending mail to maintainer"
 
     # Preparing list for SIMBAD
