@@ -69,3 +69,10 @@ TODO
      do this part manually, but we might be able to make a script that notifies
      us, if with finds article from Santos or Sousa, so we can set the homogenity
      flag to 1.
+
+Stuff added by Sérgio: (not necessaryly to appear online for now)
+
+   - [ ] Include a column in the table with a flag (yes or no) to inform that a 
+     given planet-host has transit events detected
+   - [ ] The interface that we use to get the mass: stev.oapd.inaf.it/cgi-bin/param_1.3
+     also provides radius and ages. It may be useful to include this in the table
