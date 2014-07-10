@@ -44,10 +44,10 @@ TODO
      with the latest update on exoplanet.eu. If not the same, SWEET-Cat should
      be updated.
    - [x] Find how many new exoplanets is found and send that in email as well.
-   - [x] Make a good interface between checkExoplanet.py (which seems to be the
+   - [x] Make a good interface between `checkExoplanet.py` (which seems to be the
      main function) and the other scripts. `os.system("python Simbad.py
      NEWNEW1")` is not nice...
-   - [x] Create a NEWNEW1. This one is just a file with the names for creating the
+   - [x] Create a `NEWNEW1`. This one is just a file with the names for creating the
      Simbad script (see e.g. in folder).
    - [x] It is also important to check for false-positives, so we can remove
      them as well.
@@ -63,16 +63,16 @@ TODO
      NEWNEW1 file.
    - [ ] Many of the SWEET-Cat things can be done automatically, e.g. write all the
      things in the table.
-   - [ ] Create files automatically for ParralaxSpec.py, TorresMass.py, and
+   - [ ] Create files automatically for `ParralaxSpec.py`, `TorresMass.py`, and
      Simbad.py.
    - [ ] The toughest challenge must be to find values in articles. I guess we must
      do this part manually, but we might be able to make a script that notifies
      us, if with finds article from Santos or Sousa, so we can set the homogenity
      flag to 1.
 
-Stuff added by Sérgio: (not necessaryly to appear online for now)
+Stuff added by Sérgio: (not necessarily to appear online for now)
 
-   - [ ] Include a column in the table with a flag (yes or no) to inform that a 
+   - [ ] Include a column in the table with a flag (yes or no) to inform that a
      given planet-host has transit events detected
    - [ ] The interface that we use to get the mass: stev.oapd.inaf.it/cgi-bin/param_1.3
      also provides radius and ages. It may be useful to include this in the table
