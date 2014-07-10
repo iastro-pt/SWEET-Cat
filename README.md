@@ -46,7 +46,7 @@ TODO
    - [x] Find how many new exoplanets is found and send that in email as well.
    - [x] Make a good interface between `checkExoplanet.py` (which seems to be the
      main function) and the other scripts. `os.system("python Simbad.py
-     NEWNEW1")` is not nice...
+     `NEWNEW1`")` is not nice...
    - [x] Create a `NEWNEW1`. This one is just a file with the names for creating the
      Simbad script (see e.g. in folder).
    - [x] It is also important to check for false-positives, so we can remove
@@ -60,7 +60,7 @@ TODO
      sender, reciever, and smpt information.
    - [x] Remove duplicate planet host, if e.g. two exoplanets have been
      detected around the same host, the host should only appear once in the
-     NEWNEW1 file.
+     `NEWNEW1` file.
    - [ ] Many of the SWEET-Cat things can be done automatically, e.g. write all the
      things in the table.
    - [ ] Create files automatically for `ParralaxSpec.py`, `TorresMass.py`, and
