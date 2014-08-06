@@ -61,7 +61,8 @@ for row in exoplanet[0:-1]:  # To avoid the header.
 
 
 if s > 0:
-    print len(set(names)), "new exoplanet available!"
+    N = len(set(names))
+    print N, "new exoplanet available!"
     print "Sending mail to maintainer"
 
     # Preparing list for SIMBAD
@@ -77,7 +78,7 @@ if s > 0:
         receiver = f.readline().split(': ')[1].strip('\n')
         smtp = f.readline().split(': ')[1].strip('\n')
 
-    msg['Subject'] = 'Update available to SWEET-Cat: ' + str(s) +\
+    msg['Subject'] = 'Update available to SWEET-Cat: ' + str(N) +\
         ' new exoplanets'
     msg['From'] = sender
     msg['To'] = receiver
