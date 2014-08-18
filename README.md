@@ -24,6 +24,16 @@ Remember to change the receiver and sender in `checkExoplanet.py` line 45 and
 46. You can also decide to change the `mail.txt` for whatever you like. This is
 the text in the mail.
 
+Requirements
+============
+For checking for new updates I use the clint module which can be found
+[here](https://github.com/kennethreitz/clint).
+
+Simple install with
+
+    $ pip install clint
+
+
 Setting up the mail
 ===================
 A file names `mailinfo.txt` needs to be created. It should looks like the
