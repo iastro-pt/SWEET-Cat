@@ -15,7 +15,7 @@ Program will print the output on the screen
 import sys
 import numpy as np
 
-inputMOOG = sys.argv[1]
+# inputMOOG = sys.argv[1]
 
 
 # Calculate a mass using the Torres calibration
@@ -93,30 +93,30 @@ def radTorres(teff, erteff, logg, erlogg, feh, erfeh):
     return meanRad, sigRad
 
 
-with open(inputMOOG) as f:
-    f.readline()
-    f.readline()
-    lines = f.readlines()
-p = [0.79102951, 0.0 - 0.57480278,  0.70062477]
+# with open(inputMOOG) as f:
+#     f.readline()
+#     f.readline()
+#     lines = f.readlines()
+# p = [0.79102951, 0.0 - 0.57480278,  0.70062477]
 
-print "Name         mass\t\t   radius"
-print "======================="*2
-for line in lines:
-    words = line.split('\t')
-    name = words[0]
+# print "Name         mass\t\t   radius"
+# print "======================="*2
+# for line in lines:
+#     words = line.split('\t')
+#     name = words[0]
 
-    teff = float(words[1])
-    erteff = float(words[2])
-    logg = float(words[3])
-    erlogg = float(words[4])
-    feh = float(words[5])
-    erfeh = float(words[6])
+#     teff = float(words[1])
+#     erteff = float(words[2])
+#     logg = float(words[3])
+#     erlogg = float(words[4])
+#     feh = float(words[5])
+#     erfeh = float(words[6])
 
-    M = massTorres(teff, erteff, logg, erlogg, feh, erfeh)
-    mass = str(round(p[0]*M[0]*M[0] + p[1]*M[0] + p[2], 2))
-    ermass = str(round(M[1], 2))
-    R = radTorres(teff, erteff, logg, erlogg, feh, erfeh)
-    rad = str(round(R[0], 2))
-    errad = str(round(R[1], 2))
+#     M = massTorres(teff, erteff, logg, erlogg, feh, erfeh)
+#     mass = str(round(p[0]*M[0]*M[0] + p[1]*M[0] + p[2], 2))
+#     ermass = str(round(M[1], 2))
+#     R = radTorres(teff, erteff, logg, erlogg, feh, erfeh)
+#     rad = str(round(R[0], 2))
+#     errad = str(round(R[1], 2))
 
-    print name + ':', mass + '+/-' + ermass, '  \t\t', rad + '+/-' + errad
+#     print name + ':', mass + '+/-' + ermass, '  \t\t', rad + '+/-' + errad

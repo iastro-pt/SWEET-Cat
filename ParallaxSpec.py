@@ -5,7 +5,7 @@ import sys
 import numpy as np
 
 
-inputPAR = sys.argv[1]
+# inputPAR = sys.argv[1]
 
 
 def bolcor(teff):
@@ -35,10 +35,12 @@ def bolcor(teff):
         return bcflow
 
 
-def parallax(teff, logg, vmag, mass, bcflow):
+def parallax(teff, logg, vmag, mass):
     """
     Calculate the parallax, given the mass
     """
+
+    bcflow = bolcor(teff)
     par = 10.**((logg - 4.44 - np.log(mass)/np.log(10.) - 4.*np.log(teff) /
                 np.log(10.) + 4.*np.log(5777.)/np.log(10.) - 0.4*(vmag +
                                                                   bcflow) -
@@ -47,20 +49,19 @@ def parallax(teff, logg, vmag, mass, bcflow):
     return par
 
 
-with open(inputPAR) as f:
-    lines = f.readlines()
+# with open(inputPAR) as f:
+#     lines = f.readlines()
 
-for line in lines:
-    words = line.split('    ')
+# for line in lines:
+#     words = line.split('    ')
 
-    name = words[0]
-    teff = float(words[1])
-    logg = float(words[2])
-    mass = float(words[3])
-    vmag = float(words[4])
+#     name = words[0]
+#     teff = float(words[1])
+#     logg = float(words[2])
+#     mass = float(words[3])
+#     vmag = float(words[4])
 
-    bcflow = bolcor(teff)
-    par = parallax(teff, logg, vmag, mass, bcflow)
-    print "Name        parallax"
-    print "===================="
-    print name+':  ', round(par, 2)
+#     par = parallax(teff, logg, vmag, mass)
+#     print "Name        parallax"
+#     print "===================="
+#     print name+':  ', round(par, 2)
