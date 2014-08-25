@@ -15,6 +15,7 @@ def simbad(stars):
             t += star
         else:
             t += '\n' + star
+    t += '\n'
     f = open('NEWNEW1', 'w')
     f.write(t)
     f.close()
