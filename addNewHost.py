@@ -23,6 +23,7 @@ def torres(name, teff=False, logg=False, feh=False):
     F, Ferr = feh
     try:
         Terr, Lerr, Ferr = float(Terr), float(Lerr), float(Ferr)
+        T, L, F = float(T), float(L), float(F)
     except ValueError:
         puts(colored.red('No mass derived for this star...'))
         return 'NULL', 'NULL'
@@ -54,7 +55,9 @@ if __name__ == '__main__':
     starID = np.array(starID)
     idx = np.where(args.i == starID)[0]
 
-# KOI-2700
+    if len(idx) > 1:  # For multiple systems
+        idx = np.array(idx[0])
+
     t = SC[idx]
     name = t[48]
     ra, dec = float(t[49]), float(t[50])
@@ -222,4 +225,3 @@ if __name__ == '__main__':
             zzz += '\t'
         zzz += 'NULL\n'
         f.write(zzz)
-
