@@ -1,12 +1,4 @@
 echo Simbad script for planet hosts
-format object form1 "HD 159243|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
-query id HD 159243
-format object form1 "HIP 91258|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
-query id HIP 91258
-format object form1 "Gl 785|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
-query id Gl 785
-format object form1 "KOI-2700|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
-query id KOI 2700
-format object form1 "HD 13908|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
-query id HD 13908
+format object form1 "Gl 15 A|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
+query id Gl 15 A
 format display
