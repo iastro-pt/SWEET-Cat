@@ -12,6 +12,7 @@ from clint.textui import puts, colored
 
 from ParallaxSpec import parallax
 
+
 def torres(name, teff=False, logg=False, feh=False):
     """
     Calculates the mass and error from Torres. See source for more information
@@ -37,12 +38,14 @@ if __name__ == '__main__':
     update for SWEET-Cat formatted for the webpage')
 
     parser.add_argument('-i',
-            required=True,
-            help='Name of the star as found in the exoplanet.eu catalog')
+                        required=True,
+                        help='Name of the star as found in the exoplanet.eu\
+                              catalog')
     parser.add_argument('-o',
-            default='newHost.rdb',
-            help='The output file. Note that only one line will be written to\
-            this file, and it will be overwritten')
+                        default='newHost.rdb',
+                        help='The output file. Note that only one line will be\
+                              written to this file, and it will be\
+                              overwritten')
 
     args = parser.parse_args()
 
@@ -68,7 +71,7 @@ if __name__ == '__main__':
     RA[2] = str(round(RA[2], 2)).zfill(4)
     if len(RA[2]) == 4:
         RA[2] += '0'
-    RA = RA[0] +" "+ RA[1] +" "+ RA[2]
+    RA = RA[0] + " " + RA[1] + " " + RA[2]
 
     DEC = list(c.dec.dms)
     DEC[0] = str(int(DEC[0])).zfill(2)
@@ -76,19 +79,18 @@ if __name__ == '__main__':
     DEC[2] = str(round(DEC[2], 2)).zfill(4)
     if len(DEC[2]) == 4:
         DEC[2] += '0'
-    DEC = '+'+DEC[0] +" "+ DEC[1] +" "+ DEC[2]
+    DEC = '+' + DEC[0] + " " + DEC[1] + " " + DEC[2]
 
-
-## Here comes the user interface part...
+    # Here comes the user interface part...
     puts(colored.blue('\nStandard parameters\n\n'))
 
-# The HD number
+    # The HD number
     puts('The '+colored.yellow('HD number'))
     HD = raw_input('> ')
     if HD == '':
         HD = 'NULL'
 
-# The V magnitude
+    # The V magnitude
     if t[51] == '':
         puts('The ' + colored.yellow('V magnitude'))
         V = round(input('> '), 2)
@@ -153,7 +155,7 @@ if __name__ == '__main__':
     M, Merr = torres(name, [Teff, Tefferr], [logg, loggerr], feh=[FeH, Ferr])
 
 # The parallax
-    puts('\nIs the '+ colored.yellow('parallax')+' given from SIMBAD?')
+    puts('\nIs the ' + colored.yellow('parallax')+' given from SIMBAD?')
     par = raw_input('(y/n) > ')
     if par.lower() == 'y' or par.lower() == 'yes':
         puts('The '+colored.yellow('parallax'))
@@ -175,7 +177,7 @@ if __name__ == '__main__':
         p = 'NULL'
         perr = 'NULL'
         pflag = 'NULL'
-        puts(colored.red('Parallax, the error, and the flag all set to "NULL"'))
+        puts(colored.red('Parallax, the error, and the flag all set to NULL'))
 
 
 # The microturbulence number
@@ -214,9 +216,8 @@ if __name__ == '__main__':
         comment = 'NULL'
 
     params = [name, HD, RA, DEC, V, Verr, p, perr, pflag, Teff, Tefferr,
-    logg, loggerr, 'NULL', 'NULL', vt, vterr, FeH, Ferr, M, Merr, author,
-    link, source, update, comment]
-
+              logg, loggerr, 'NULL', 'NULL', vt, vterr, FeH, Ferr, M, Merr,
+              author, link, source, update, comment]
 
     zzz = ''
     with open(args.o, 'wb') as f:
