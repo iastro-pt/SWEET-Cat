@@ -26,9 +26,11 @@ def planetInString(planet):
             planet = planet[0:-2]
     return planet
 
+
 def downloadExoplanet():
-    link_csv = 'http://www.exoplanet.eu/catalog/csv/?f=%22radial%22+IN+detection'
-    link_csv += '+OR+%22astrometry%22+IN+detection+OR+%22transit%22+IN+detection'
+    link_csv = 'http://www.exoplanet.eu/catalog/csv/?f=%22radial%22+IN'
+    link_csv += 'detection+OR+%22astrometry%22+IN+detection+OR+%22transit%22+'
+    link_csv += 'IN+detection'
 
     puts(colored.clean('Updating from exoplanets.eu.'))
     puts(colored.yellow('Please wait...'))
@@ -40,6 +42,7 @@ def downloadExoplanet():
     exoplanet = csv.reader(open("exo.csv"))
     exoplanet = sorted(exoplanet, key=operator.itemgetter(38), reverse=True)
     return exoplanet
+
 
 def update(exoplanet, starsID, update_sweetcat):
     s = 0
@@ -54,13 +57,8 @@ def update(exoplanet, starsID, update_sweetcat):
                 names.append(updated_star)
     return names
 
+
 def sendingMail(names):
-    N = len(set(names))
-    puts(colored.green(str(N) + " new exoplanet available!"))
-
-    # Preparing list for SIMBAD
-    simbad(set(names))
-
     # Sending the mail
     fp = open('mail.txt', 'rb')
     msg = MIMEText(fp.read())
@@ -97,8 +95,14 @@ if __name__ == '__main__':
     exoplanet = downloadExoplanet()
     names = update(exoplanet, starsID, update_sweetcat)
     names = set(names)
+    N = len(names)
 
-    if len(names) > 0:
+    if N > 0:
+        puts(colored.green(str(N) + " new exoplanet available!"))
+
+        # Preparing list for SIMBAD
+        simbad(names)
+
         sendingMail(names)
     else:
         puts(colored.clean('No new updates seems to be available.'))
