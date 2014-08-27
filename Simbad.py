@@ -10,29 +10,23 @@ def simbad(stars):
     """
 
     t = ''
-    for i, star in enumerate(stars):
-        if i == 0:
-            t += star
-        else:
-            t += '\n' + star
-    t += '\n'
-    f = open('NEWNEW1', 'w')
-    f.write(t)
-    f.close()
+    for star in stars:
+        t += star + '\n'
 
-    result = open('SimbadQuery.txt', 'w')
-    result.write('echo Simbad script for planet hosts\n')
+    with open('NEWNEW1', 'wb') as f:
+        f.write(t)
 
-    ttt = '|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO'
-    ttt += '|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%'
-    ttt += 'FLUXLIST(V;E)|%PLX(V)|%PLX(E)\"\n'
+    with open('SimbadQuery.txt', 'wb') as result:
+        result.write('Simbad script for planet hosts\n')
 
-    with open('NEWNEW1') as f:
-        for line in f.readlines():
-            line2 = line.replace('\n', '')
-            line3 = 'format object form1 \"' + line2 + ttt
+        ttt = '|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO'
+        ttt += '|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%'
+        ttt += 'FLUXLIST(V;E)|%PLX(V)|%PLX(E)\"\n'
+
+        for star in stars:
+            # line2 = line.replace('\n', '')
+            line3 = 'format object form1 \"' + star + ttt
             result.write(line3.replace('\r', ''))
-            result.write('query id '+line2.replace('-', ' ') + '\n')
+            result.write('query id '+star.replace('-', ' ') + '\n')
 
-    result.write('format display')
-    result.close()
+        result.write('format display\n')
