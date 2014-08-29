@@ -47,21 +47,3 @@ def parallax(teff, logg, vmag, mass):
                 0.11) * 0.5) * 1000
 
     return par
-
-
-# with open(inputPAR) as f:
-#     lines = f.readlines()
-
-# for line in lines:
-#     words = line.split('    ')
-
-#     name = words[0]
-#     teff = float(words[1])
-#     logg = float(words[2])
-#     mass = float(words[3])
-#     vmag = float(words[4])
-
-#     par = parallax(teff, logg, vmag, mass)
-#     print "Name        parallax"
-#     print "===================="
-#     print name+':  ', round(par, 2)
