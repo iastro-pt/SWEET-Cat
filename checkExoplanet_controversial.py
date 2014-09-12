@@ -38,7 +38,7 @@ def downloadExoplanet():
         f.write(table)
 
     exoplanet = csv.reader(open("exo_cont.csv"))
-    exoplanet = sorted(exoplanet, key=operator.itemgetter(38), reverse=True)
+    exoplanet = sorted(exoplanet, key=operator.itemgetter(47), reverse=True)
     return exoplanet
 
 
@@ -46,7 +46,7 @@ def update(exoplanet, starsID, update_sweetcat):
     s = 0
     names = []
     for row in exoplanet[0:-1]:  # To avoid the header.
-        tt = row[38]
+        tt = row[47]
         update_exoplanet = datetime(int(tt[0:4]), int(tt[5:7]), int(tt[8:10]))
         if update_exoplanet > update_sweetcat:
             updated_star = planetInString(row[0])
@@ -95,7 +95,7 @@ if __name__ == '__main__':
     names = set(names)
     N = len(names)
 
-    if len(names) > 0:
+    if N > 0:
         puts(colored.green(str(N) + " new exoplanet available!"))
 
         # Preparing list for SIMBAD
