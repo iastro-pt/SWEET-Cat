@@ -7,6 +7,7 @@ import argparse
 from astropy import coordinates as coord
 from astropy import units as u
 import csv
+import pandas as pd
 import operator
 from clint.textui import puts, colored
 
@@ -33,6 +34,14 @@ def torres(name, teff=False, logg=False, feh=False):
     puts(colored.green('Done'))
     return round(M, 2), round(Merr, 2)
 
+
+def variable_assignment(digits=2):
+    try:
+        x = round(input('> '), digits)
+    except SyntaxError, e:
+        x = 'NULL'
+    return x
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Create a line with a new\
     update for SWEET-Cat formatted for the webpage')
@@ -49,22 +58,20 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    SC = csv.reader(open('exo.csv'), delimiter=',')
-    SC = sorted(SC, key=operator.itemgetter(24), reverse=True)
-    n = len(SC)
-    starID = ['']*n
-    for i in xrange(n):
-        starID[i] = SC[i][48]
-    starID = np.array(starID)
-    idx = np.where(args.i == starID)[0]
+    # Read the data from exoplanet.eu
+    fields = ['star_name', 'ra', 'dec', 'mag_v', 'star_metallicity',
+              'star_teff']
+    SC = pd.read_csv('exo.csv', skipinitialspace=True, usecols=fields)
+    SC = SC[SC['star_name'] == args.i]
 
-    if len(idx) > 1:  # For multiple systems
-        idx = np.array(idx[0])
+    try:
+        name = SC.star_name.values[0]
+    except IndexError, e:
+        puts(colored.red(args.i) + ' where not found. Try another star.')
+        raise SystemExit
 
-    t = SC[idx]
-    name = t[48]
-    ra, dec = float(t[49]), float(t[50])
-    c = coord.ICRS(ra, dec, unit=(u.degree, u.degree))
+    ra, dec = float(SC.ra.values[0]), float(SC.dec.values[0])
+    c = coord.SkyCoord(ra, dec, unit=(u.degree, u.degree), frame='icrs')
     RA = list(c.ra.hms)
     RA[0] = str(int(RA[0])).zfill(2)
     RA[1] = str(int(RA[1])).zfill(2)
@@ -91,64 +98,47 @@ if __name__ == '__main__':
         HD = 'NULL'
 
     # The V magnitude
-    if t[51] == '':
+    V_exo = SC.mag_v.values[0]
+    if np.isnan(V_exo):
         puts('The ' + colored.yellow('V magnitude'))
-        V = round(input('> '), 2)
-        puts('The error on' + colored.yellow('V magnitude'))
-        Verr = raw_input('> ')
-        if Verr == '':
-            Verr = 'NULL'
-    else:
-        V = round(float(t[51]), 2)
+        V = variable_assignment(2)
         puts('The error on ' + colored.yellow('V magnitude'))
-        Verr = raw_input('> ')
-        if Verr == '':
-            Verr = 'NULL'
+        Verr = variable_assignment(2)
+    else:
+        V = round(float(V_exo, 2))
+        puts('The error on ' + colored.yellow('V magnitude'))
+        Verr = variable_assignment(2)
 
 
 # The metallicity
-    if t[57] == '':
+    FeH_exo = SC.star_metallicity.values[0]
+    if np.isnan(FeH_exo):
         puts('The ' + colored.yellow('[Fe/H]'))
-        FeH = round(input('> '), 2)
+        FeH = variable_assignment(2)
         puts('The error on ' + colored.yellow('[Fe/H]'))
-        Ferr = raw_input('> ')
-        if Ferr == '':
-            Ferr = 'NULL'
+        Ferr = variable_assignment(2)
     else:
-        FeH = round(float(t[57]), 2)
+        FeH = round(float(FeH_exo), 2)
         puts('The error on ' + colored.yellow('[Fe/H]'))
-        Ferr = raw_input('> ')
-        if Ferr == '':
-            Ferr = 'NULL'
-
+        Ferr = variable_assignment(2)
 
 # The effective temperature
-    if t[62] == '':
+    Teff_exo = SC.star_teff.values[0]
+    if np.isnan(Teff_exo):
         puts('The ' + colored.yellow('Teff'))
-        Teff = input('> ')
+        Teff = variable_assignment(0)
         puts('The error on ' + colored.yellow('Teff'))
-        Tefferr = raw_input('> ')
-        if Tefferr == '':
-            Tefferr = 'NULL'
+        Tefferr = variable_assignment(0)
     else:
-        Teff = int(float(t[62]))
+        Teff = int(Teff_exo)
         puts('The error on ' + colored.yellow('Teff'))
-        Tefferr = raw_input('> ')
-        if Tefferr == '':
-            Tefferr = 'NULL'
-
+        Tefferr = variable_assignment(0)
 
 # The log g
     puts('The ' + colored.yellow('logg'))
-    logg = raw_input('> ')
-    if logg == '':
-        logg = 'NULL'
-        loggerr = 'NULL'
-    else:
-        puts('The error on ' + colored.yellow('logg'))
-        loggerr = raw_input('> ')
-        if loggerr == '':
-            loggerr = 'NULL'
+    logg = variable_assignment(2)
+    puts('The error on ' + colored.yellow('logg'))
+    loggerr = variable_assignment(2)
 
 # The mass
     puts(colored.magenta('\nCalculating the mass...'))
@@ -182,15 +172,9 @@ if __name__ == '__main__':
 
 # The microturbulence number
     puts('The '+colored.yellow('microturbulence'))
-    vt = raw_input('> ')
-    if vt == '':
-        vt = 'NULL'
-        vterr = 'NULL'
-    else:
-        puts('The error on '+colored.yellow('microturbulence'))
-        vterr = raw_input('> ')
-        if vterr == '':
-            vt = 'NULL'
+    vt = variable_assignment(2)
+    puts('The error on '+colored.yellow('microturbulence'))
+    vterr = variable_assignment(2)
 
 # Author and link to ADS
     puts('Who is the '+colored.yellow('author?'))
@@ -219,10 +203,6 @@ if __name__ == '__main__':
               logg, loggerr, 'NULL', 'NULL', vt, vterr, FeH, Ferr, M, Merr,
               author, link, source, update, comment]
 
-    zzz = ''
     with open(args.o, 'wb') as f:
-        for z in params:
-            zzz += str(z)
-            zzz += '\t'
-        zzz += 'NULL\n'
+        zzz = '\t'.join([str(p) for p in params]) + '\tNULL\n'
         f.write(zzz)
