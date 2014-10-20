@@ -105,7 +105,7 @@ if __name__ == '__main__':
         puts('The error on ' + colored.yellow('V magnitude'))
         Verr = variable_assignment(2)
     else:
-        V = round(float(V_exo, 2))
+        V = round(float(V_exo), 2)
         puts('The error on ' + colored.yellow('V magnitude'))
         Verr = variable_assignment(2)
 
@@ -156,7 +156,7 @@ if __name__ == '__main__':
     elif par.lower() == 'n' or par.lower() == 'no':
         puts(colored.magenta('\nCalculating the parallax...'))
         try:
-            p = parallax(Teff, logg, V, M)
+            p = round(parallax(Teff, logg, V, M), 2)
             puts(colored.green('Done'))
         except TypeError:
             puts(colored.red('Could not calculate the parallax...'))
