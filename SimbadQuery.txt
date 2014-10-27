@@ -1,20 +1,4 @@
 Simbad script for planet hosts
-format object form1 "WASP-94 A|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
-query id WASP 94 A
-format object form1 "WASP-94 B|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
-query id WASP 94 B
-format object form1 "Kepler-422|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
-query id Kepler 422
-format object form1 "Kepler-423|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
-query id Kepler 423
-format object form1 "WASP-70A|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
-query id WASP 70A
-format object form1 "HIP 97233|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
-query id HIP 97233
 format object form1 "Kepler-424|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
 query id Kepler 424
-format object form1 "HD 14067|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
-query id HD 14067
-format object form1 "HIP 67851|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
-query id HIP 67851
 format display
