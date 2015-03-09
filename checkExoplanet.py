@@ -2,10 +2,11 @@
 # -*- coding: utf8 -*-
 
 # My imports
-import csv
-import operator
+from __future__ import print_function
 import urllib2
 from datetime import datetime
+import pandas as pd
+import numpy as np
 
 from Simbad import simbad
 
@@ -15,22 +16,22 @@ from email.mime.text import MIMEText
 from clint.textui import puts, colored
 
 
-def planetInString(planet):
+def planetInString(planets):
     """
     Simbad does not like planet names, so remove 'b', 'c' etc. in the of the
     star name
     """
-    letters = ['b', 'c', 'd', 'e', 'f', 'g']
-    for letter in letters:
-        if planet.endswith(' ' + letter):
-            planet = planet[0:-2]
-    return planet
+    for i, planet in enumerate(planets):
+        for letter in 'bcdefg':
+            if planet.endswith(' %s' % letter):
+                planets[i] = planet[0:-2]
+    return planets
 
 
 def downloadExoplanet():
-    link_csv = 'http://www.exoplanet.eu/catalog/csv/?f=%22radial%22+IN'
-    link_csv += 'detection+OR+%22astrometry%22+IN+detection+OR+%22transit%22+'
-    link_csv += 'IN+detection'
+    link_csv = 'http://www.exoplanet.eu/catalog/csv/?f=%22radial%22+IN'\
+               'detection+OR+%22astrometry%22+IN+detection+OR+%22transit%22+'\
+               'IN+detection'
 
     puts(colored.clean('Updating from exoplanets.eu.'))
     puts(colored.yellow('Please wait...'))
@@ -39,38 +40,28 @@ def downloadExoplanet():
     with open("exo.csv", "w") as f:
         f.write(table)
 
-    exoplanet = csv.reader(open("exo.csv"))
-    exoplanet = sorted(exoplanet, key=operator.itemgetter(47), reverse=True)
+    exoplanet = pd.read_csv('exo.csv')
+    exoplanet.updated = pd.to_datetime(exoplanet.updated)
+    exoplanet.sort(['updated'], ascending=False, inplace=True)
     return exoplanet
 
 
 def update(exoplanet, starsID, update_sweetcat):
-    s = 0
-    names = []
-    for row in exoplanet[0:-1]:  # To avoid the header.
-        tt = row[47]
-        update_exoplanet = datetime(int(tt[0:4]), int(tt[5:7]), int(tt[8:10]))
-        if update_exoplanet > update_sweetcat:
-            updated_star = planetInString(row[0])
-            if updated_star not in starsID:
-                s += 1
-                names.append(updated_star)
-    return names
+
+    return exoplanet['# name'][exoplanet.updated > update_sweetcat]
 
 
 def sendingMail(names):
     # Sending the mail
-    fp = open('mail.txt', 'rb')
-    msg = MIMEText(fp.read())
-    fp.close()
+    with open('mail.txt', 'r') as fp:
+        msg = MIMEText(fp.read())
 
-    with open('mailinfo.txt', 'rb') as f:
+    with open('mailinfo.txt', 'r') as f:
         sender = f.readline().split(': ')[1].strip('\n')
         receiver = f.readline().split(': ')[1].strip('\n')
         smtp = f.readline().split(': ')[1].strip('\n')
 
-    msg['Subject'] = 'Update available to SWEET-Cat: ' + str(N) +\
-        ' new exoplanets'
+    msg['Subject'] = 'Update available to SWEET-Cat: %s new exoplanets' % N
     msg['From'] = sender
     msg['To'] = receiver
 
@@ -78,26 +69,32 @@ def sendingMail(names):
         s = smtplib.SMTP(smtp)
         s.sendmail(sender, [receiver], msg.as_string())
         s.quit()
-    except smtplib.SMTPRecipientsRefused, e:
+    except smtplib.SMTPRecipientsRefused:
         puts(colored.red('Not able to send an email...'))
+        raise smtplib.SMTPRecipientsRefused
 
 
 if __name__ == '__main__':
-    SC = csv.reader(open('WEBSITE_online.rdb'), delimiter='\t')
-    SC = sorted(SC, key=operator.itemgetter(24), reverse=True)
-    starsID = []
-    for i in xrange(len(SC)):
-        starsID.append(SC[i][0])
+    names_ = ['name', 'hd', 'ra', 'dec', 'V', 'Verr', 'p', 'perr',
+              'pflag', 'Teff', 'Tefferr', 'logg', 'logger',
+              'n1', 'n2', 'vt', 'vterr', 'feh', 'feherr', 'M', 'Merr',
+              'author', 'link', 'source', 'update', 'comment', 'n3']
+    SC = pd.read_csv('WEBSITE_online.rdb', delimiter='\t', names=names_)
+    starsID = SC.name  # All the stars from SWEET-Cat
 
-    tmp = SC[0][-3]
-    update_sweetcat = datetime(int(tmp[0:4]), int(tmp[5:7]), int(tmp[8:10]))
+    # Find the latest update time
+    newest = max(SC.values[:, 24]).replace('-', ' ')
+    update_sweetcat = datetime.strptime(newest, '%Y %m %d')
 
+    # Get all the new exoplanet after the newest update time
     exoplanet = downloadExoplanet()
     names = update(exoplanet, starsID, update_sweetcat)
-    names = set(names)
+    names = np.array(list(set(planetInString(names.values))))
+    # Remove updated exoplanets, and only look at unique hosts
+    names = [name for name in names if not len(SC[SC.name == name].values)]
     N = len(names)
 
-    if N > 0:
+    if N:
         puts(colored.green(str(N) + " new exoplanet available!"))
 
         # Preparing list for SIMBAD
