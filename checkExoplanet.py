@@ -47,7 +47,6 @@ def downloadExoplanet():
 
 
 def update(exoplanet, starsID, update_sweetcat):
-
     return exoplanet['# name'][exoplanet.updated > update_sweetcat]
 
 
