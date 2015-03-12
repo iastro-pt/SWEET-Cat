@@ -43,19 +43,17 @@ def variable_assignment(digits=2):
     return x
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Create a line with a new\
-    update for SWEET-Cat formatted for the webpage')
+    parser = argparse.ArgumentParser(description='Create a line with a new'
+                                                 'update for SWEET-Cat'
+                                                 'formatted for the webpage')
 
-    parser.add_argument('-i',
-                        required=True,
-                        help='Name of the star as found in the exoplanet.eu\
-                              catalog')
-    parser.add_argument('-o',
-                        default='newHost.rdb',
-                        help='The output file. Note that only one line will be\
-                              written to this file, and it will be\
-                              overwritten')
-
+    parser.add_argument('input',
+                        help='Name of the star as found in the exoplanet.eu'
+                             'catalog')
+    parser.add_argument('-o', default='newHost.rdb',
+                        help='The output file. Note that only one line will be'
+                             'written to this file, and it will be'
+                             'overwritten')
     args = parser.parse_args()
 
     # Read the data from exoplanet.eu
