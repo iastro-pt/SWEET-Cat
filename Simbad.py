@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 
-def simbad(stars):
+def simbad(stars, output):
     """Function to make script for Simbad. Takes a list of stars
 
     :stars: A list of stars
@@ -13,7 +13,7 @@ def simbad(stars):
     for star in stars:
         t += star + '\n'
 
-    with open('NEWNEW1', 'wb') as f:
+    with open(output, 'wb') as f:
         f.write(t)
 
     with open('SimbadQuery.txt', 'wb') as result:
