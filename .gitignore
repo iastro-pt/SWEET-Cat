@@ -1,8 +1,9 @@
 *.pyc
-checkExoplanet_CAUP.py
-checkExoplanet_controversial_CAUP.py
 *.rdb
+*.csv
 oldVersions
 mailinfo.txt
+names.txt
+names_controversial.txt
 
 !WEBSITE_online.rdb
