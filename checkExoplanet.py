@@ -51,7 +51,7 @@ def update(exoplanet, starsID, update_sweetcat):
 
 
 def sendingMail(names):
-    # Sending the mail
+    """Sending the mail"""
     with open('mail.txt', 'r') as fp:
         msg = MIMEText(fp.read())
 
@@ -74,6 +74,7 @@ def sendingMail(names):
 
 
 if __name__ == '__main__':
+    # Read the current version of SWEET-Cat
     names_ = ['name', 'hd', 'ra', 'dec', 'V', 'Verr', 'p', 'perr',
               'pflag', 'Teff', 'Tefferr', 'logg', 'logger',
               'n1', 'n2', 'vt', 'vterr', 'feh', 'feherr', 'M', 'Merr',
@@ -97,9 +98,9 @@ if __name__ == '__main__':
         puts(colored.green(str(N) + " new exoplanet available!"))
 
         # Preparing list for SIMBAD
-        simbad(names)
+        simbad(names, 'names.txt')
 
-        sendingMail(names)
+        # sendingMail(names)
     else:
         puts(colored.clean('No new updates seems to be available.'))
         puts(colored.clean('SWEET-Cat should be up to date'))
