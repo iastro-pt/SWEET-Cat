@@ -60,12 +60,12 @@ if __name__ == '__main__':
     fields = ['star_name', 'ra', 'dec', 'mag_v', 'star_metallicity',
               'star_teff']
     SC = pd.read_csv('exo.csv', skipinitialspace=True, usecols=fields)
-    SC = SC[SC['star_name'] == args.i]
+    SC = SC[SC['star_name'] == args.input]
 
     try:
         name = SC.star_name.values[0]
     except IndexError, e:
-        puts(colored.red(args.i) + ' where not found. Try another star.')
+        puts(colored.red(args.input) + ' where not found. Try another star.')
         raise SystemExit
 
     ra, dec = float(SC.ra.values[0]), float(SC.dec.values[0])
@@ -126,11 +126,11 @@ if __name__ == '__main__':
         puts('The ' + colored.yellow('Teff'))
         Teff = variable_assignment(0)
         puts('The error on ' + colored.yellow('Teff'))
-        Tefferr = variable_assignment(0)
+        Tefferr = int(variable_assignment(0))
     else:
         Teff = int(Teff_exo)
         puts('The error on ' + colored.yellow('Teff'))
-        Tefferr = variable_assignment(0)
+        Tefferr = int(variable_assignment(0))
 
 # The log g
     puts('The ' + colored.yellow('logg'))
@@ -151,7 +151,7 @@ if __name__ == '__main__':
         puts('The error on '+colored.yellow('parallax'))
         perr = input('> ')
         pflag = 'Simbad'
-    elif par.lower() == 'n' or par.lower() == 'no':
+    elif par.lower() == 'n' or par.lower() == 'no' or par == '':
         puts(colored.magenta('\nCalculating the parallax...'))
         try:
             p = round(parallax(Teff, logg, V, M), 2)
