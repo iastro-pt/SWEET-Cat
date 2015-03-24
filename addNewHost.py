@@ -131,11 +131,11 @@ if __name__ == '__main__':
         puts('The ' + colored.yellow('Teff'))
         Teff = variable_assignment(0)
         puts('The error on ' + colored.yellow('Teff'))
-        Tefferr = variable_assignment(0)
+        Tefferr = int(variable_assignment(0))
     else:
         Teff = int(Teff_exo)
         puts('The error on ' + colored.yellow('Teff'))
-        Tefferr = variable_assignment(0)
+        Tefferr = int(variable_assignment(0))
 
     # The log g
     puts('The ' + colored.yellow('logg'))
@@ -156,7 +156,7 @@ if __name__ == '__main__':
         puts('The error on '+colored.yellow('parallax'))
         perr = input('> ')
         pflag = 'Simbad'
-    elif par.lower() == 'n' or par.lower() == 'no':
+    elif par.lower() == 'n' or par.lower() == 'no' or par == '':
         puts(colored.magenta('\nCalculating the parallax...'))
         try:
             p = round(parallax(Teff, logg, V, M), 2)
