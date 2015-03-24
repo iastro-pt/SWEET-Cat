@@ -15,11 +15,9 @@ Program will print the output on the screen
 import sys
 import numpy as np
 
-# inputMOOG = sys.argv[1]
 
-
-# Calculate a mass using the Torres calibration
 def massTorres(teff, erteff, logg, erlogg, feh, erfeh):
+    """Calculate a mass using the Torres calibration"""
     ntrials = 10000
     randomteff = teff + erteff * np.random.randn(ntrials)
     randomlogg = logg + erlogg * np.random.randn(ntrials)
@@ -36,8 +34,7 @@ def massTorres(teff, erteff, logg, erlogg, feh, erfeh):
 
     M = np.zeros(ntrials)
     logM = np.zeros(ntrials)
-
-    for i in xrange(len(randomteff)):
+    for i in xrange(len(ntrials)):
         X = np.log10(randomteff[i]) - 4.1
         logMass = a1 + a2 * X + a3 * X * X + a4 * X * X * X + a5 *\
             randomlogg[i] * randomlogg[i] + a6 * randomlogg[i] *\
@@ -74,7 +71,7 @@ def radTorres(teff, erteff, logg, erlogg, feh, erfeh):
     R = np.zeros(ntrials)
     logR = np.zeros(ntrials)
 
-    for i in range(len(randomteff)):
+    for i in xrange(len(ntrials)):
         X = np.log10(randomteff[i]) - 4.1
         logRad = b1 + b2 * X + b3 * X * X + b4 * X * X * X + b5 *\
             randomlogg[i] * randomlogg[i] + b6 * randomlogg[i] *\
@@ -91,32 +88,3 @@ def radTorres(teff, erteff, logg, erlogg, feh, erfeh):
     sigRad = 10**(meanRadlog + sigRadlogTot) - meanRad
 
     return meanRad, sigRad
-
-
-# with open(inputMOOG) as f:
-#     f.readline()
-#     f.readline()
-#     lines = f.readlines()
-# p = [0.79102951, 0.0 - 0.57480278,  0.70062477]
-
-# print "Name         mass\t\t   radius"
-# print "======================="*2
-# for line in lines:
-#     words = line.split('\t')
-#     name = words[0]
-
-#     teff = float(words[1])
-#     erteff = float(words[2])
-#     logg = float(words[3])
-#     erlogg = float(words[4])
-#     feh = float(words[5])
-#     erfeh = float(words[6])
-
-#     M = massTorres(teff, erteff, logg, erlogg, feh, erfeh)
-#     mass = str(round(p[0]*M[0]*M[0] + p[1]*M[0] + p[2], 2))
-#     ermass = str(round(M[1], 2))
-#     R = radTorres(teff, erteff, logg, erlogg, feh, erfeh)
-#     rad = str(round(R[0], 2))
-#     errad = str(round(R[1], 2))
-
-#     print name + ':', mass + '+/-' + ermass, '  \t\t', rad + '+/-' + errad
