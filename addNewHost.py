@@ -42,32 +42,38 @@ def variable_assignment(digits=2):
         x = 'NULL'
     return x
 
-if __name__ == '__main__':
+
+def _parser():
     parser = argparse.ArgumentParser(description='Create a line with a new'
                                                  'update for SWEET-Cat'
                                                  'formatted for the webpage')
-
     parser.add_argument('input',
                         help='Name of the star as found in the exoplanet.eu'
                              'catalog')
-    parser.add_argument('-o', default='newHost.rdb',
+    parser.add_argument('-o', '--output', default='newHost.rdb',
                         help='The output file. Note that only one line will be'
                              'written to this file, and it will be'
                              'overwritten')
-    args = parser.parse_args()
+    return parser.parse_args()
 
+
+if __name__ == '__main__':
+    args = _parser()
+    input_, output = args.input, args.output
     # Read the data from exoplanet.eu
     fields = ['star_name', 'ra', 'dec', 'mag_v', 'star_metallicity',
               'star_teff']
     SC = pd.read_csv('exo.csv', skipinitialspace=True, usecols=fields)
-    SC = SC[SC['star_name'] == args.i]
+    SC = SC[SC['star_name'] == input_]
 
     try:
         name = SC.star_name.values[0]
     except IndexError, e:
-        puts(colored.red(args.i) + ' where not found. Try another star.')
+        puts(colored.red(input_) + ' where not found. Try another star or add'
+             'manually.')
         raise SystemExit
 
+    # Get RA and dec
     ra, dec = float(SC.ra.values[0]), float(SC.dec.values[0])
     c = coord.SkyCoord(ra, dec, unit=(u.degree, u.degree), frame='icrs')
     RA = list(c.ra.hms)
@@ -76,7 +82,7 @@ if __name__ == '__main__':
     RA[2] = str(round(RA[2], 2)).zfill(4)
     if len(RA[2]) == 4:
         RA[2] += '0'
-    RA = RA[0] + " " + RA[1] + " " + RA[2]
+    RA = "{0} {1} {2}".format(*RA)
 
     DEC = list(c.dec.dms)
     DEC[0] = str(int(DEC[0])).zfill(2)
@@ -84,7 +90,7 @@ if __name__ == '__main__':
     DEC[2] = str(round(DEC[2], 2)).zfill(4)
     if len(DEC[2]) == 4:
         DEC[2] += '0'
-    DEC = '+' + DEC[0] + " " + DEC[1] + " " + DEC[2]
+    DEC = "+{0} {1} {2}".format(*DEC)
 
     # Here comes the user interface part...
     puts(colored.blue('\nStandard parameters\n\n'))
@@ -107,8 +113,7 @@ if __name__ == '__main__':
         puts('The error on ' + colored.yellow('V magnitude'))
         Verr = variable_assignment(2)
 
-
-# The metallicity
+    # The metallicity
     FeH_exo = SC.star_metallicity.values[0]
     if np.isnan(FeH_exo):
         puts('The ' + colored.yellow('[Fe/H]'))
@@ -120,7 +125,7 @@ if __name__ == '__main__':
         puts('The error on ' + colored.yellow('[Fe/H]'))
         Ferr = variable_assignment(2)
 
-# The effective temperature
+    # The effective temperature
     Teff_exo = SC.star_teff.values[0]
     if np.isnan(Teff_exo):
         puts('The ' + colored.yellow('Teff'))
@@ -132,17 +137,17 @@ if __name__ == '__main__':
         puts('The error on ' + colored.yellow('Teff'))
         Tefferr = variable_assignment(0)
 
-# The log g
+    # The log g
     puts('The ' + colored.yellow('logg'))
     logg = variable_assignment(2)
     puts('The error on ' + colored.yellow('logg'))
     loggerr = variable_assignment(2)
 
-# The mass
+    # The mass
     puts(colored.magenta('\nCalculating the mass...'))
     M, Merr = torres(name, [Teff, Tefferr], [logg, loggerr], feh=[FeH, Ferr])
 
-# The parallax
+    # The parallax
     puts('\nIs the ' + colored.yellow('parallax')+' given from SIMBAD?')
     par = raw_input('(y/n) > ')
     if par.lower() == 'y' or par.lower() == 'yes':
@@ -167,30 +172,29 @@ if __name__ == '__main__':
         pflag = 'NULL'
         puts(colored.red('Parallax, the error, and the flag all set to NULL'))
 
-
-# The microturbulence number
+    # The microturbulence number
     puts('The '+colored.yellow('microturbulence'))
     vt = variable_assignment(2)
     puts('The error on '+colored.yellow('microturbulence'))
     vterr = variable_assignment(2)
 
-# Author and link to ADS
+    # Author and link to ADS
     puts('Who is the '+colored.yellow('author?'))
     author = raw_input('> ')
     puts('Link to article ('+colored.yellow('ADS')+')')
     link = raw_input('> ')
 
-# Source flag
+    # Source flag
     puts(colored.yellow('Source flag'))
     source = raw_input('(0/1) > ')
     if source == '':
         source = 'NULL'
 
-# Last update
+    # Last update
     puts(colored.yellow('Last update'))
     update = raw_input('(1989-09-13) > ')
 
-# Comments
+    # Comments
     puts('Any '+colored.yellow('comments'))
     puts('E.g. if we have a M dwarf...')
     comment = raw_input('> ')
@@ -200,7 +204,7 @@ if __name__ == '__main__':
     params = [name, HD, RA, DEC, V, Verr, p, perr, pflag, Teff, Tefferr,
               logg, loggerr, 'NULL', 'NULL', vt, vterr, FeH, Ferr, M, Merr,
               author, link, source, update, comment]
+    params = map(str, params)
 
-    with open(args.o, 'wb') as f:
-        zzz = '\t'.join([str(p) for p in params]) + '\tNULL\n'
-        f.write(zzz)
+    with open(output, 'wb') as f:
+        f.write('\t'.join(params) + '\tNULL\n')
