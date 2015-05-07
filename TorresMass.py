@@ -34,7 +34,7 @@ def massTorres(teff, erteff, logg, erlogg, feh, erfeh):
 
     M = np.zeros(ntrials)
     logM = np.zeros(ntrials)
-    for i in xrange(len(ntrials)):
+    for i in xrange(ntrials):
         X = np.log10(randomteff[i]) - 4.1
         logMass = a1 + a2 * X + a3 * X * X + a4 * X * X * X + a5 *\
             randomlogg[i] * randomlogg[i] + a6 * randomlogg[i] *\
@@ -71,7 +71,7 @@ def radTorres(teff, erteff, logg, erlogg, feh, erfeh):
     R = np.zeros(ntrials)
     logR = np.zeros(ntrials)
 
-    for i in xrange(len(ntrials)):
+    for i in xrange(ntrials):
         X = np.log10(randomteff[i]) - 4.1
         logRad = b1 + b2 * X + b3 * X * X + b4 * X * X * X + b5 *\
             randomlogg[i] * randomlogg[i] + b6 * randomlogg[i] *\
