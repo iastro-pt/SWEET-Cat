@@ -57,27 +57,16 @@ def _parser():
     return parser.parse_args()
 
 
-def _strip(text):
-    """
-    The star_name sometimes contains extra whitespaces. This function is parsed
-    to pd.read_csv, and strip it from that column.
-    """
-    try:
-        return text.strip()
-    except AttributeError:
-        return text
-
-
 if __name__ == '__main__':
     args = _parser()
     input_, output = args.input.strip(), args.output
     # Read the data from exoplanet.eu
     fields = ['star_name', 'ra', 'dec', 'mag_v', 'star_metallicity',
               'star_teff']
-    SC = pd.read_csv('exo.csv', skipinitialspace=True, usecols=fields,
-                     converters={'star_name': _strip})
-
-    SC = SC[SC['star_name'] == input_]
+    SC = pd.read_csv('exo.csv', skipinitialspace=True, usecols=fields)
+    # Remove trailing whitespaces
+    SC.star_name = SC.star_name.str.strip()
+    SC = SC[SC.star_name == input_]
 
     try:
         name = SC.star_name.values[0]
