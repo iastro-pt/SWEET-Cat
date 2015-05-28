@@ -133,11 +133,17 @@ if __name__ == '__main__':
         puts('The ' + colored.yellow('Teff'))
         Teff = variable_assignment(0)
         puts('The error on ' + colored.yellow('Teff'))
-        Tefferr = int(variable_assignment(0))
+        try:
+            Tefferr = int(variable_assignment(0))
+        except ValueError:
+            Tefferr = 'NULL'
     else:
         Teff = int(Teff_exo)
         puts('The error on ' + colored.yellow('Teff'))
-        Tefferr = int(variable_assignment(0))
+        try:
+            Tefferr = int(variable_assignment(0))
+        except ValueError:
+            Tefferr = 'NULL'
 
     # The log g
     puts('The ' + colored.yellow('logg'))
