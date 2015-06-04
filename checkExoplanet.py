@@ -84,10 +84,11 @@ if __name__ == '__main__':
     NewStars = []
     for i, exo_name in enumerate(exo_names):
         if exo_name not in sc_names:
-            new = exoplanet['# name'].values[i]
-            NewStars.append(remove_planet(new))
+            new = remove_planet(exoplanet['# name'].values[i])
+            if new.lower().replace(' ', '') not in sc_names:
+                NewStars.append(new)
 
-    NewStars = list(set(NewStars))
+    NewStars = sorted(list(set(NewStars)))
     N = len(NewStars)
 
     if N:
