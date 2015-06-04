@@ -2,7 +2,7 @@
 # -*- coding: utf8 -*-
 
 # My imports
-from __future__ import print_function
+# from __future__ import print_function
 import urllib2
 from datetime import datetime
 import pandas as pd
@@ -60,6 +60,14 @@ def sendingMail(names):
         raise smtplib.SMTPRecipientsRefused
 
 
+def remove_planet(name):
+    """Remove the trailing b, c, d, etc in the stellar name"""
+    for planet in 'abcdefgh':  # Probably not more planets currently
+        if name.endswith(planet):
+            return name.strip(' %s' % planet)
+    return name
+
+
 if __name__ == '__main__':
     # Read the current version of SWEET-Cat
     names_ = ['name', 'hd', 'ra', 'dec', 'V', 'Verr', 'p', 'perr',
@@ -67,19 +75,19 @@ if __name__ == '__main__':
               'n1', 'n2', 'vt', 'vterr', 'feh', 'feherr', 'M', 'Merr',
               'author', 'link', 'source', 'update', 'comment', 'n3']
     SC = pd.read_csv('WEBSITE_online.rdb', delimiter='\t', names=names_)
-    sc_names = list(SC.name.str.lower())  # All the stars from SWEET-Cat
-    sc_names = map(str.strip, sc_names)
+    sc_names = map(lambda x: x.lower().replace(' ', ''), SC.name)
 
     # Get all thene exoplanets from exoplanetEU (unique list)
     exoplanet = downloadExoplanet()
-    exo_names = list(set(exoplanet.star_name.str.lower()))
-    exo_names = map(str.strip, exo_names)
+    exo_names = map(lambda x: x.lower().replace(' ', ''), exoplanet.star_name)
 
     NewStars = []
-    for exo_name in exo_names:
+    for i, exo_name in enumerate(exo_names):
         if exo_name not in sc_names:
-            NewStars.append(exo_name)
+            new = exoplanet['# name'].values[i]
+            NewStars.append(remove_planet(new))
 
+    NewStars = list(set(NewStars))
     N = len(NewStars)
 
     if N:
