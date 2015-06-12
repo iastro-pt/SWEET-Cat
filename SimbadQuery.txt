@@ -1,14 +1,4 @@
 Simbad script for planet hosts
-format object form1 "Gliese 876|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
-query id Gliese 876
-format object form1 "HATS-8|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
-query id HATS 8
-format object form1 "HD 50499|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
-query id HD 50499
-format object form1 "HIP 107773|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
-query id HIP 107773
-format object form1 "HIP 65891|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
-query id HIP 65891
-format object form1 "PH1-Kepler-64|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
-query id PH1 Kepler 64
+format object form1 "Kapteyn's|%IDLIST(HD|Gl|GJ|BD|HIP|CoroT|WASP|Kepler|KOI|KIC|HAT|NGC|XO|Qatar|TrES|OGLE|1)|%COO(A)|%COO(D)|%SP(S)|%FLUXLIST(V;F)|%FLUXLIST(V;E)|%PLX(V)|%PLX(E)"
+query id Kapteyn's
 format display
