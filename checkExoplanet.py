@@ -15,19 +15,16 @@ from email.mime.text import MIMEText
 from clint.textui import puts, colored
 
 
-def downloadExoplanet():
+def downloadExoplanet(link):
     """
     Download the table from exoplanetEU and save it to a file (exo.csv).
 
     Return a pandas DataFrame sorted in 'update'.
     """
-    link_csv = 'http://www.exoplanet.eu/catalog/csv/?f=%22radial%22+IN'\
-               'detection+OR+%22astrometry%22+IN+detection+OR+%22transit%22+'\
-               'IN+detection'
 
     puts(colored.clean('Updating from exoplanets.eu.'))
     puts(colored.yellow('Please wait...'))
-    response = urllib2.urlopen(link_csv)
+    response = urllib2.urlopen(link)
     table = response.read()
     with open("exo.csv", "w") as f:
         f.write(table)
@@ -78,13 +75,20 @@ if __name__ == '__main__':
     sc_names = map(lambda x: x.lower().replace(' ', ''), SC.name)
 
     # Get all thene exoplanets from exoplanetEU (unique list)
-    exoplanet = downloadExoplanet()
+    link_csv = 'http://www.exoplanet.eu/catalog/csv/?f=%22radial%22+IN'\
+               'detection+OR+%22astrometry%22+IN+detection+OR+%22transit%22+'\
+               'IN+detection'
+    exoplanet = downloadExoplanet(link_csv)
     exo_names = map(lambda x: x.lower().replace(' ', ''), exoplanet.star_name)
 
+    # We have this already, but without the ' in the name.
+    blacklist = ['Kapteyn\'s']
     NewStars = []
     for i, exo_name in enumerate(exo_names):
         if exo_name not in sc_names:
             new = remove_planet(exoplanet['# name'].values[i])
+            if new in blacklist:
+                continue
             if new.lower().replace(' ', '') not in sc_names:
                 NewStars.append(new)
 
@@ -95,7 +99,7 @@ if __name__ == '__main__':
         puts(colored.green(str(N) + " new exoplanet available!"))
 
         # Preparing list for SIMBAD
-        simbad(NewStars, 'names.txt')
+        # simbad(NewStars, 'names.txt')
 
         # sendingMail(names)
     else:
