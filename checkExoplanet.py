@@ -101,7 +101,7 @@ def main(link, controversial=False):
                 if tmp in sc_names and tmp not in true_names:
                     NewStars.append(new)
         else:
-            if exo_name not in sc_names:
+            if (exo_name not in sc_names) and (exo_name not in blacklist):
                 new = remove_planet(exoplanet['# name'].values[i])
                 if new in blacklist:
                     continue
@@ -133,6 +133,6 @@ if __name__ == '__main__':
     link2 = 'http://exoplanet.eu/catalog/csv/?f=%22controversial'\
             '%22+IN+detection'
 
-    # main(link1, controversial=False)
-    # print('\n')
+    main(link1, controversial=False)
+    print('\n')
     main(link2, controversial=True)
