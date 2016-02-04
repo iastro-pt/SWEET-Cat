@@ -91,7 +91,7 @@ def main(link, controversial=False):
         true_names = map(lambda x: remove_planet(x.lower().replace(' ', '')), df.star_name)
 
     # We have this already, but without the ' in the name.
-    blacklist = ['Kapteyn\'s', 'KELT-14', 'K2-8', 'K2-16', 'K2-19', 'KOI-2939','KOI-2828','Kepler-102']
+    blacklist = ['Kapteyn\'s', 'KELT-14', 'K2-8', 'K2-16', 'K2-19', 'KOI-2939','KOI-2828','Kepler-102', 'KIC-10024862', 'KIC-8012732', 'KIC-9413313', 'EPIC 388']
     NewStars = []
     for i, exo_name in enumerate(exo_names):
         if controversial:
