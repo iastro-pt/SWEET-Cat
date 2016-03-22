@@ -1,4 +1,0 @@
-#!/bin/bash
-
-cd /home/daniel/Documents/Uni/phdproject/SWEET-Cat
-python checkExoplanet.py
