@@ -92,7 +92,8 @@ def main(link, controversial=False):
 
     # We have this already, but without the ' in the name.
     blacklist = ['Kapteyn\'s', 'KELT-14', 'K2-8', 'K2-16', 'K2-19', 'KOI-2939','KOI-2828','Kepler-102','KIC-10024862','KIC-8012732','KIC-9413313','EPIC 388',\
-    'BD+14 4559','BD+20 2457','HD 47 32','GJ 86 A','HD 4732','KOI-2939 (AB)','Kepler-453 (AB)','Kepler-64 (AB)','Kepler-539','Kepler-1647 (AB)', 'K2-24','CVSO 30 b ','HD 59686 A','HAT-47']
+    'BD+14 4559','BD+20 2457','HD 47 32','GJ 86 A','HD 4732','KOI-2939 (AB)','Kepler-453 (AB)','Kepler-64 (AB)','Kepler-539','Kepler-1647 (AB)', 'K2-24','CVSO 30 b ',\
+    'HD 59686 A','HAT-47','HAT-P-27-WASP-40','HAT-P-30-WASP-51']
     NewStars = []
     for i, exo_name in enumerate(exo_names):
         if controversial:
