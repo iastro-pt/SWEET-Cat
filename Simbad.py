@@ -9,12 +9,8 @@ def simbad(stars, output):
 
     """
 
-    t = ''
-    for star in stars:
-        t += star + '\n'
-
     with open(output, 'wb') as f:
-        f.write(t)
+        f.write('\n'.join(stars))
 
     with open('SimbadQuery.txt', 'wb') as result:
         result.write('Simbad script for planet hosts\n')
@@ -24,9 +20,8 @@ def simbad(stars, output):
         ttt += 'FLUXLIST(V;E)|%PLX(V)|%PLX(E)\"\n'
 
         for star in stars:
-            # line2 = line.replace('\n', '')
-            line3 = 'format object form1 \"' + star + ttt
-            result.write(line3.replace('\r', ''))
+            line = 'format object form1 \"' + star + ttt
+            result.write(line.replace('\r', ''))
             result.write('query id '+star.replace('-', ' ') + '\n')
 
         result.write('format display\n')

@@ -2,139 +2,138 @@
 # -*- coding: utf8 -*-
 
 # My imports
-# from __future__ import print_function
+import os
 import urllib2
-from datetime import datetime
 import pandas as pd
 import numpy as np
-from Simbad import simbad
+from astropy.io import votable
+import warnings
 
 # For fun, but still useful
-import smtplib
-from email.mime.text import MIMEText
 from clint.textui import puts, colored
 
 
-def downloadExoplanet(link, controversial=False):
-    """
-    Download the table from exoplanetEU and save it to a file (exo.csv).
-
-    Return a pandas DataFrame sorted in 'update'.
-    """
-
-    puts(colored.clean('Updating from exoplanets.eu.'))
-    puts(colored.yellow('Please wait...'))
-    response = urllib2.urlopen(link)
-    table = response.read()
-    if controversial:
-        with open("exo_cont.csv", "w") as f:
-            f.write(table)
-        return pd.read_csv('exo_cont.csv')
-    else:
-        with open("exo.csv", "w") as f:
-            f.write(table)
-
-        return pd.read_csv('exo.csv')
+def writeFile(fname, data):
+    """Write data to a file"""
+    with open(fname, 'w') as f:
+        f.write(data)
 
 
-def sendingMail(names, controversial=False):
-    """Sending the mail"""
-    with open('mail.txt', 'r') as fp:
-        msg = MIMEText(fp.read())
+class Update:
+    """Check for updates to SWEET-Cat comparing with exoplanet.eu"""
+    def __init__(self, controversial, download=False):
+        self.controversial = controversial
+        self.download = download
 
-    with open('mailinfo.txt', 'r') as f:
-        sender = f.readline().split(': ')[1].strip('\n')
-        receiver = f.readline().split(': ')[1].strip('\n')
-        smtp = f.readline().split(': ')[1].strip('\n')
-
-    N = len(names)
-    if controversial:
-        msg['Subject'] = 'Update available to SWEET-Cat: %i new controversial'\
-                         ' exoplanets' % N
-    else:
-        msg['Subject'] = 'Update available to SWEET-Cat: %i new exoplanets' % N
-    msg['From'] = sender
-    msg['To'] = receiver
-
-    try:
-        s = smtplib.SMTP(smtp)
-        s.sendmail(sender, [receiver], msg.as_string())
-        s.quit()
-    except smtplib.SMTPRecipientsRefused:
-        puts(colored.red('Not able to send an email...'))
-        raise smtplib.SMTPRecipientsRefused
-
-
-def remove_planet(name):
-    """Remove the trailing b, c, d, etc in the stellar name"""
-    for planet in 'abcdefgh':  # Probably not more planets currently
-        if name.endswith(planet):
-            return name.strip(' %s' % planet)
-    return name
-
-
-def main(link, controversial=False):
-    # Read the current version of SWEET-Cat
-    names_ = ['name', 'hd', 'ra', 'dec', 'V', 'Verr', 'p', 'perr',
-              'pflag', 'Teff', 'Tefferr', 'logg', 'logger',
-              'n1', 'n2', 'vt', 'vterr', 'feh', 'feherr', 'M', 'Merr',
-              'author', 'link', 'source', 'update', 'comment', 'n3']
-    SC = pd.read_csv('WEBSITE_online.rdb', delimiter='\t', names=names_)
-    sc_names = map(lambda x: x.lower().replace(' ', ''), SC.name)
-    sc_names = map(str.strip, sc_names)
-
-    # Get all thene exoplanets from exoplanetEU (unique list)
-    exoplanet = downloadExoplanet(link, controversial=controversial)
-    exo_names = map(lambda x: x.lower().replace(' ', ''), exoplanet.star_name)
-    if controversial:
-        df = pd.read_csv('exo.csv')
-        true_names = map(lambda x: remove_planet(x.lower().replace(' ', '')), df.star_name)
-
-    # We have this already, but without the ' in the name.
-    blacklist = ['Kapteyn\'s', 'KELT-14', 'K2-8', 'K2-16', 'K2-19', 'KOI-2939','KOI-2828','Kepler-102','KIC-10024862','KIC-8012732','KIC-9413313','EPIC 388',\
-    'BD+14 4559','BD+20 2457','HD 47 32','GJ 86 A','HD 4732','KOI-2939 (AB)','Kepler-453 (AB)','Kepler-64 (AB)','Kepler-539','Kepler-1647 (AB)', 'K2-24','CVSO 30 b ',\
-    'HD 59686 A','HAT-47','HAT-P-27-WASP-40','HAT-P-30-WASP-51']
-    NewStars = []
-    for i, exo_name in enumerate(exo_names):
-        if controversial:
-            if exo_name in sc_names:
-                new = remove_planet(exoplanet['# name'].values[i])
-                tmp = new.lower().replace(' ', '')
-                if tmp in sc_names and tmp not in true_names:
-                    NewStars.append(new)
+        if self.controversial:
+            self.fname = 'exo_cont.csv'
         else:
-            if (exo_name not in sc_names) and (exo_name not in blacklist):
-                new = remove_planet(exoplanet['# name'].values[i])
-                if new in blacklist:
-                    continue
-                if new.lower().replace(' ', '') not in sc_names:
-                    NewStars.append(new)
+            self.fname = 'exo.csv'
 
-    NewStars = sorted(list(set(NewStars)))
-    N = len(NewStars)
+        self.blacklist = ['Kapteyn\'s', 'KELT-14', 'K2-8', 'K2-16', 'K2-19',
+                          'KOI-2939', 'KOI-2828', 'Kepler-102', 'KIC-10024862',
+                          'KIC-8012732', 'KIC-9413313', 'EPIC 388', 'BD+14 4559',
+                          'BD+20 2457', 'HD 47 32', 'GJ 86 A', 'HD 4732',
+                          'KOI-2939 (AB)', 'Kepler-453 (AB)', 'Kepler-64 (AB)',
+                          'Kepler-539', 'Kepler-1647 (AB)', 'K2-24', 'CVSO 30 b ',
+                          'HD 59686 A', 'HAT-47', 'HAT-P-27-WASP-40',
+                          'HAT-P-30-WASP-51']
 
-    if N:
-        puts(colored.green(str(N) + " new exoplanet available!"))
+        self.readSC()
+        self.downloadExoplanet()
 
-        # Preparing list for SIMBAD
-        if controversial:
-            simbad(NewStars, 'names_contr.txt')
+    def downloadExoplanet(self):
+        """
+        Download the table from exoplanetEU and save it to a file (exo.csv).
+
+        Return a pandas DataFrame sorted in 'update'.
+        """
+        if self.download:
+            response = urllib2.urlopen("http://exoplanet.eu/catalog/votable")
+            table = response.read()
+            with open('exo.xml', 'w') as f:
+                f.write(table)
+            self.xml2csv()
+        df = pd.read_csv(self.fname)
+        df = df[(df.detection_type == 'Radial Velocity') | (df.detection_type == 'Primary Transit') | (df.detection_type == 'Astrometry')]
+        self.exoplanet = df
+        self.exo_names = self.exoplanet.star_name
+
+    def xml2csv(self):
+        """Convert the saved xml file to csv and read with pandas"""
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            vo = votable.parse('exo.xml', invalid='mask', pedantic=False)
+            vo = vo.get_first_table().to_table(use_names_over_ids=True)
+            df = vo.to_pandas()
+
+            # Divide the data in Confirmed and not.
+            df[df.planet_status == 'Confirmed'].to_csv('exo.csv', index=False)
+            df[(df.planet_status == 'Unconfirmed') | (df.planet_status == 'Candidate')].to_csv('exo_cont.csv', index=False)
+            os.remove('exo.xml')
+
+    def remove_planet(self, name):
+        """Remove the trailing b, c, d, etc in the stellar name"""
+        for planet in 'abcdefgh':  # Probably not more planets currently
+            if name.endswith(planet):
+                return name.strip(' %s' % planet)
+        return name
+
+    def readSC(self):
+        # TODO: Use the ra and dec, and match with coordinates instead of name
+        #       stored in self.coordinates.
+
+        # Read the current version of SWEET-Cat
+        names_ = ['name', 'hd', 'ra', 'dec', 'V', 'Verr', 'p', 'perr',
+                  'pflag', 'Teff', 'Tefferr', 'logg', 'logger',
+                  'n1', 'n2', 'vt', 'vterr', 'feh', 'feherr', 'M', 'Merr',
+                  'author', 'link', 'source', 'update', 'comment', 'n3']
+        SC = pd.read_csv('WEBSITE_online.rdb', delimiter='\t', names=names_)
+        self.sc_names = map(lambda x: x.lower().replace(' ', ''), SC.name)
+        self.sc_names = map(str.strip, self.sc_names)
+        self.coordinates = SC.loc[:, ['ra', 'dec']]
+
+    def update(self):
+        if self.controversial:
+            df = pd.read_csv('exo.csv')
+            true_names = map(lambda x: self.remove_planet(x.lower().replace(' ', '')), df.name)
+
+        # We have this already, but without the ' in the name.
+        NewStars = []
+        for i, exo_name in enumerate(self.exo_names):
+            new = self.remove_planet(self.exoplanet['name'].values[i])
+            tmp = new.lower().replace(' ', '')
+
+            if self.controversial:
+                if exo_name in self.sc_names:
+                    if (tmp in self.sc_names) and (tmp not in true_names):
+                        NewStars.append(new)
+            else:
+                if (exo_name not in self.sc_names) and (exo_name not in self.blacklist):
+                    if new in self.blacklist:
+                        continue
+                    if tmp not in self.sc_names:
+                        NewStars.append(new)
+
+        NewStars = sorted(list(set(NewStars)))
+        Nstars = len(NewStars)
+
+        if Nstars:
+            puts(colored.green(str(Nstars) + " new exoplanet available!"))
+
+            if self.controversial:
+                writeFile('names_contr.txt', '\n'.join(NewStars))
+            else:
+                writeFile('names.txt', '\n'.join(NewStars))
         else:
-            simbad(NewStars, 'names.txt')
-
-        # sendingMail(names, controversial=controversial)
-    else:
-        puts(colored.clean('No new updates seems to be available.'))
-        puts(colored.clean('SWEET-Cat should be up to date'))
+            puts(colored.clean('No new updates available.'))
+            puts(colored.clean('SWEET-Cat is up to date'))
+            puts(colored.green('Great job :)'))
 
 
 if __name__ == '__main__':
-    link1 = 'http://www.exoplanet.eu/catalog/csv/?f=%22radial%22+IN'\
-            'detection+OR+%22astrometry%22+IN+detection+OR+%22transit%22+'\
-            'IN+detection'
-    link2 = 'http://exoplanet.eu/catalog/csv/?f=%22controversial'\
-            '%22+IN+detection'
-
-    main(link1, controversial=False)
+    new = Update(controversial=False, download=True)
+    new.update()
     print('\n')
-    main(link2, controversial=True)
+    remove = Update(controversial=True)
+    remove.update()

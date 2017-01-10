@@ -1,3 +1,0 @@
-sender: daniel.andreasen@astro.up.pt
-receiver: daniel.andreasen@astro.up.pt
-smtp: mail.astro.up.pt
