@@ -37,34 +37,6 @@ def downloadExoplanet(link, controversial=False):
         return pd.read_csv('exo.csv')
 
 
-def sendingMail(names, controversial=False):
-    """Sending the mail"""
-    with open('mail.txt', 'r') as fp:
-        msg = MIMEText(fp.read())
-
-    with open('mailinfo.txt', 'r') as f:
-        sender = f.readline().split(': ')[1].strip('\n')
-        receiver = f.readline().split(': ')[1].strip('\n')
-        smtp = f.readline().split(': ')[1].strip('\n')
-
-    N = len(names)
-    if controversial:
-        msg['Subject'] = 'Update available to SWEET-Cat: %i new controversial'\
-                         ' exoplanets' % N
-    else:
-        msg['Subject'] = 'Update available to SWEET-Cat: %i new exoplanets' % N
-    msg['From'] = sender
-    msg['To'] = receiver
-
-    try:
-        s = smtplib.SMTP(smtp)
-        s.sendmail(sender, [receiver], msg.as_string())
-        s.quit()
-    except smtplib.SMTPRecipientsRefused:
-        puts(colored.red('Not able to send an email...'))
-        raise smtplib.SMTPRecipientsRefused
-
-
 def remove_planet(name):
     """Remove the trailing b, c, d, etc in the stellar name"""
     for planet in 'abcdefgh':  # Probably not more planets currently
@@ -121,8 +93,6 @@ def main(link, controversial=False):
             simbad(NewStars, 'names_contr.txt')
         else:
             simbad(NewStars, 'names.txt')
-
-        # sendingMail(names, controversial=controversial)
     else:
         puts(colored.clean('No new updates seems to be available.'))
         puts(colored.clean('SWEET-Cat should be up to date'))
