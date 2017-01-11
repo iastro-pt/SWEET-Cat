@@ -136,19 +136,14 @@ if __name__ == '__main__':
                 Teff_exo = exo.star_teff.values[0]
                 if np.isnan(Teff_exo):
                     puts('The ' + colored.yellow('Teff'))
-                    Teff = int(input('> '))
+                    Teff = variable_assignment(2)
                     puts('The error on ' + colored.yellow('Teff'))
-                    try:
-                        Tefferr = int(input('> '))
-                    except ValueError:
-                        Tefferr = 'NULL'
+                    Tefferr = variable_assignment(2)
+
                 else:
                     Teff = int(Teff_exo)
                     puts('The error on ' + colored.yellow('Teff'))
-                    try:
-                        Tefferr = int(input('> '))
-                    except ValueError:
-                        Tefferr = 'NULL'
+                    Tefferr = variable_assignment(2)
 
                 # The log g
                 puts('The ' + colored.yellow('logg'))
