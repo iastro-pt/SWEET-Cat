@@ -76,7 +76,8 @@ class Update:
 
     def remove_planet(self, name):
         """Remove the trailing b, c, d, etc in the stellar name"""
-        for planet in 'abcdefgh':  # Probably not more planets currently
+        planets = ' a, b, c, d, e, f, g, h'.split(',')
+        for planet in planets:  # Probably not more planets currently
             if name.endswith(planet):
                 return name.strip(' %s' % planet)
         return name
