@@ -37,7 +37,9 @@ class Update:
                           'KOI-2939 (AB)', 'Kepler-453 (AB)', 'Kepler-64 (AB)',
                           'Kepler-539', 'Kepler-1647 (AB)', 'K2-24', 'CVSO 30 b ',
                           'HD 59686 A', 'HAT-47', 'HAT-P-27-WASP-40',
-                          'HAT-P-30-WASP-51']
+                          'HAT-P-30-WASP-51','GJ 221  BD-06 1339','K2-99','K2-33','KOI-1089.02','KOI-1299','KOI-368.01','KOI-4427.01','Kepler-13 A']
+
+#,'eta Cnc','eta Umi','ups An','55 Cn' ***star with letters missing***
 
         self.readSC()
         self.downloadExoplanet()
