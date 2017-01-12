@@ -37,9 +37,9 @@ class Update:
                           'KOI-2939 (AB)', 'Kepler-453 (AB)', 'Kepler-64 (AB)',
                           'Kepler-539', 'Kepler-1647 (AB)', 'K2-24', 'CVSO 30 b ',
                           'HD 59686 A', 'HAT-47', 'HAT-P-27-WASP-40',
-                          'HAT-P-30-WASP-51','GJ 221  BD-06 1339','K2-99','K2-33','KOI-1089.02','KOI-1299','KOI-368.01','KOI-4427.01','Kepler-13 A']
-
-#,'eta Cnc','eta Umi','ups An','55 Cn' ***star with letters missing***
+                          'HAT-P-30-WASP-51', 'GJ 221  BD-06 1339', 'K2-99',
+                          'K2-33', 'KOI-1089.02', 'KOI-1299', 'KOI-368.01',
+                          'KOI-4427.01', 'Kepler-13 A']
 
         self.readSC()
         self.downloadExoplanet()
@@ -76,10 +76,10 @@ class Update:
 
     def remove_planet(self, name):
         """Remove the trailing b, c, d, etc in the stellar name"""
-        planets = ' a, b, c, d, e, f, g, h'.split(',')
-        for planet in planets:  # Probably not more planets currently
-            if name.endswith(planet):
-                return name.strip(' %s' % planet)
+        planets = 'abcdefgh'
+        for planet in planets:
+            if name.endswith(' %s' % planet):
+                return name[:-2]
         return name
 
     def readSC(self):
@@ -99,7 +99,7 @@ class Update:
     def update(self):
         if self.controversial:
             df = pd.read_csv('exo.csv')
-            true_names = map(lambda x: self.remove_planet(x.lower().replace(' ', '')), df.name)
+            true_names = map(lambda x: self.remove_planet(x).lower().replace(' ', ''), df.name)
 
         # We have this already, but without the ' in the name.
         NewStars = []
