@@ -32,16 +32,22 @@ def torres(name, teff=False, logg=False, feh=False):
     return round(M, 2), round(Merr, 2)
 
 
-def variable_assignment(digits=2):
+def variable_assignment(digits):
     try:
-        x = '%.2f' % round(input('> '), digits)
+        if digits>0:
+            x = '%.2f' % round(input('> '), digits)
+        else:
+            x = '%d' % round(input('> '), digits)
     except SyntaxError, e:
         x = 'NULL'
     return x
 
 
 if __name__ == '__main__':
-    stars = np.loadtxt('names.txt', dtype='S', delimiter='\t',usecols=(0,), )
+#    stars = np.loadtxt('names.txt', dtype='S', delimiter='\t',usecols=(0,), )	"does not work when the file has only one line"
+    with open('names.txt') as f:
+        stars = f.readlines()
+    f.close()
     manual = open('manual.list', "a")
     var = 'Y'
 
@@ -54,6 +60,8 @@ if __name__ == '__main__':
     output = 'WEBSITE_online.rdb'
 
     for i, star in enumerate(stars):
+            
+        star=star[:-1]                                        # removing '\n' from the strings
         exo = exo_all[exo_all.star_name == star]
         next = True
 
@@ -136,15 +144,15 @@ if __name__ == '__main__':
                 Teff_exo = exo.star_teff.values[0]
                 if np.isnan(Teff_exo):
                     puts('The ' + colored.yellow('Teff'))
-                    Teff = variable_assignment(2)
+                    Teff = variable_assignment(0)
                     puts('The error on ' + colored.yellow('Teff'))
-                    Tefferr = variable_assignment(2)
-
+                    Tefferr = variable_assignment(0)
+                                                                       # the Teff is not float
                 else:
                     Teff = int(Teff_exo)
                     puts('The error on ' + colored.yellow('Teff'))
-                    Tefferr = variable_assignment(2)
-
+                    Tefferr = variable_assignment(0)
+                
                 # The log g
                 puts('The ' + colored.yellow('logg'))
                 logg = variable_assignment(2)
@@ -215,11 +223,17 @@ if __name__ == '__main__':
                 # New host information
                 with open(output, 'a') as f:
                     f.write('\t'.join(params) + '\tNULL\n')
+                f.close()
 
                 # Update the list of new hosts
                 with open('names.txt', 'w') as names:
-                    for j in stars[i+1:]:
-                        names.write(j+'\n')
+# if the last star was added so no star is updated
+                    if i+1==len(stars):
+                        names.write('')
+                    else:    
+                        for j in stars[i+1:]:
+                            names.write(j+'\n')
+                names.close()
                 print ''
                 print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 
