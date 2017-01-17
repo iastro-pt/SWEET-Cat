@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 from astropy.io import votable
 import warnings
-
+import math
 # For fun, but still useful
 from clint.textui import puts, colored
 
@@ -30,17 +30,8 @@ class Update:
         else:
             self.fname = 'exo.csv'
 
-        self.blacklist = ['Kapteyn\'s', 'KELT-14', 'K2-8', 'K2-16', 'K2-19',
-                          'KOI-2939', 'KOI-2828', 'Kepler-102', 'KIC-10024862',
-                          'KIC-8012732', 'KIC-9413313', 'EPIC 388', 'BD+14 4559',
-                          'BD+20 2457', 'HD 47 32', 'GJ 86 A', 'HD 4732',
-                          'KOI-2939 (AB)', 'Kepler-453 (AB)', 'Kepler-64 (AB)',
-                          'Kepler-539', 'Kepler-1647 (AB)', 'K2-24', 'CVSO 30 b ',
-                          'HD 59686 A', 'HAT-47', 'HAT-P-27-WASP-40',
-                          'HAT-P-30-WASP-51', 'GJ 221  BD-06 1339', 'K2-99',
-                          'K2-33', 'KOI-1089.02', 'KOI-1299', 'KOI-368.01',
-                          'KOI-4427.01', 'Kepler-13 A']
-
+        self.blacklist = ['HD 59686 A','Kepler-420 A','Kepler-539'] 
+                          
         self.readSC()
         self.downloadExoplanet()
 
@@ -102,10 +93,35 @@ class Update:
             true_names = map(lambda x: self.remove_planet(x).lower().replace(' ', ''), df.name)
 
         # We have this already, but without the ' in the name.
+        print ''
+        print 'Matching data base...'
+                
         NewStars = []
         for i, exo_name in enumerate(self.exo_names):
             new = self.remove_planet(self.exoplanet['name'].values[i])
             tmp = new.lower().replace(' ', '')
+
+            RAexo=self.exoplanet['ra'].values[i]
+            DEexo=self.exoplanet['dec'].values[i]
+            found=False
+            
+            for j in range(len(self.sc_names)):
+# converting RA (h:m:s->degrees) and DE (d:m:s->degrees)
+                aux=self.coordinates['ra'].values[j]
+                RAsc=((float(aux[0:2])+float(aux[3:5])/60.+float(aux[6:])/3600.)*15.)
+
+                aux=self.coordinates['dec'].values[j]
+                if aux[0]=='-':
+                    DEsc=(float(aux[0:3])-float(aux[4:6])/60.-float(aux[7:])/3600.)
+                else:    
+                    DEsc=(float(aux[0:3])+float(aux[4:6])/60.+float(aux[7:])/3600.)
+
+# compute the spherical distance
+                dist=3600. * (((RAexo-RAsc)*math.cos(math.radians(DEexo)))**2+(DEexo-DEsc)**2)**0.5
+# 5 arc seconds is a good tolerance in distance
+                if dist<5.:
+                    found=True
+                    break
 
             if self.controversial:
                 if exo_name in self.sc_names:
@@ -115,7 +131,9 @@ class Update:
                 if (exo_name not in self.sc_names) and (exo_name not in self.blacklist):
                     if new in self.blacklist:
                         continue
-                    if tmp not in self.sc_names:
+
+# the positions in exoplanets.eu are wrong sometimes because they dont use J2000, so double check position and name
+                    if not found and tmp not in self.sc_names:
                         NewStars.append(new)
 
         NewStars = sorted(list(set(NewStars)))
