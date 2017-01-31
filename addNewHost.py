@@ -48,7 +48,7 @@ if __name__ == '__main__':
     with open('names.txt') as f:
         stars = f.readlines()
     f.close()
-    manual = open('manual.list', "a")
+    
     var = 'Y'
 
     # Read the data from exoplanet.eu
@@ -61,7 +61,8 @@ if __name__ == '__main__':
 
     for i, star in enumerate(stars):
             
-        star=star[:-1]                                        # removing '\n' from the strings
+        if star[-1]=='\n':
+            star=star[:-1]                                        # removing '\n' from the strings
         exo = exo_all[exo_all.star_name == star]
         next = True
 
@@ -74,8 +75,20 @@ if __name__ == '__main__':
             print ''
             puts(colored.red(star) + ' not found. Star added in the file manual.list')
             print ''
+            manual = open('manual.list', "a")
             manual.write(star+'\n')
+            manual.close()
             next = False
+            # Update the list of new hosts
+            with open('names.txt', 'w') as names:
+# if the last star was added so no star is updated
+                if i+1==len(stars):
+                    names.write('')
+                else:    
+                    for j in stars[i+1:]:
+                        names.write(j)
+            names.close()
+            print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 
         # if the star is found in the exoplanet.eu
         if next:
@@ -232,7 +245,7 @@ if __name__ == '__main__':
                         names.write('')
                     else:    
                         for j in stars[i+1:]:
-                            names.write(j+'\n')
+                            names.write(j)
                 names.close()
                 print ''
                 print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
