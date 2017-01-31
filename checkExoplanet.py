@@ -8,7 +8,6 @@ import pandas as pd
 import numpy as np
 from astropy.io import votable
 import warnings
-import math
 # For fun, but still useful
 from clint.textui import puts, colored
 
@@ -30,8 +29,8 @@ class Update:
         else:
             self.fname = 'exo.csv'
 
-        self.blacklist = ['HD 59686 A','Kepler-420 A','Kepler-539'] 
-                          
+        self.blacklist = ['HD 59686 A','Kepler-420 A','Kepler-539']
+
         self.readSC()
         self.downloadExoplanet()
 
@@ -87,40 +86,57 @@ class Update:
         self.sc_names = map(str.strip, self.sc_names)
         self.coordinates = SC.loc[:, ['ra', 'dec']]
 
+    def _sccoordinates(self, idx):
+        '''Transform the coordinates to degrees
+
+        Input
+        -----
+        idx : int
+          The index of the SWEET-Cat catalogue
+
+        Output
+        ------
+        RAsc : float
+          RA in degrees
+        DEsc : float
+          DEC in degrees
+        '''
+        aux = self.coordinates['ra'].values[idx]
+        RAsc = (float(aux[0:2])+float(aux[3:5])/60.+float(aux[6:])/3600.)*15.
+
+        aux = self.coordinates['dec'].values[idx]
+        if aux[0] == '-':
+            DEsc = float(aux[0:3])-float(aux[4:6])/60.-float(aux[7:])/3600.
+        else:
+            DEsc = float(aux[0:3])+float(aux[4:6])/60.+float(aux[7:])/3600.
+        return RAsc, DEsc
+
     def update(self):
         if self.controversial:
             df = pd.read_csv('exo.csv')
             true_names = map(lambda x: self.remove_planet(x).lower().replace(' ', ''), df.name)
 
         # We have this already, but without the ' in the name.
-        print ''
-        print 'Matching data base...'
-                
+        print '\nMatching data base...'
         NewStars = []
         for i, exo_name in enumerate(self.exo_names):
             new = self.remove_planet(self.exoplanet['name'].values[i])
             tmp = new.lower().replace(' ', '')
 
-            RAexo=self.exoplanet['ra'].values[i]
-            DEexo=self.exoplanet['dec'].values[i]
-            found=False
-            
-            for j in range(len(self.sc_names)):
-# converting RA (h:m:s->degrees) and DE (d:m:s->degrees)
-                aux=self.coordinates['ra'].values[j]
-                RAsc=((float(aux[0:2])+float(aux[3:5])/60.+float(aux[6:])/3600.)*15.)
+            RAexo = self.exoplanet['ra'].values[i]
+            DEexo = self.exoplanet['dec'].values[i]
+            found = False
 
-                aux=self.coordinates['dec'].values[j]
-                if aux[0]=='-':
-                    DEsc=(float(aux[0:3])-float(aux[4:6])/60.-float(aux[7:])/3600.)
-                else:    
-                    DEsc=(float(aux[0:3])+float(aux[4:6])/60.+float(aux[7:])/3600.)
+            for j in xrange(len(self.sc_names)):
+                # converting RA (h:m:s->degrees) and DE (d:m:s->degrees)
+                RAsc, DEsc = self._sccoordinates(j)
 
-# compute the spherical distance
-                dist=3600. * (((RAexo-RAsc)*math.cos(math.radians(DEexo)))**2+(DEexo-DEsc)**2)**0.5
-# 5 arc seconds is a good tolerance in distance
-                if dist<5.:
-                    found=True
+                # compute the spherical distance
+                dist = 999
+                if abs(RAexo-RAsc) < 1:
+                    dist = 3600 * (((RAexo-RAsc)*np.cos(np.radians(DEexo)))**2 + (DEexo-DEsc)**2)**0.5
+                if dist < 5:  # 5 arc seconds is a good tolerance in distance
+                    found = True
                     break
 
             if self.controversial:
@@ -132,8 +148,8 @@ class Update:
                     if new in self.blacklist:
                         continue
 
-# the positions in exoplanets.eu are wrong sometimes because they dont use J2000, so double check position and name
-                    if not found and tmp not in self.sc_names:
+                    # the positions in exoplanets.eu are wrong sometimes because they dont use J2000, so double check position and name
+                    elif (not found) and (tmp not in self.sc_names):
                         NewStars.append(new)
 
         NewStars = sorted(list(set(NewStars)))
