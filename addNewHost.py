@@ -235,7 +235,7 @@ if __name__ == '__main__':
 
                 # New host information
                 with open(output, 'a') as f:
-                    f.write('\t'.join(params) + '\tNULL\n')
+                    f.write('\n'+'\t'.join(params) + '\tNULL')
                 f.close()
 
                 # Update the list of new hosts
