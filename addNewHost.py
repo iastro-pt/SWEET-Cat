@@ -44,11 +44,10 @@ def variable_assignment(digits):
 
 
 if __name__ == '__main__':
-#    stars = np.loadtxt('names.txt', dtype='S', delimiter='\t',usecols=(0,), )	"does not work when the file has only one line"
+    # stars = np.loadtxt('names.txt', dtype='S', delimiter='\t',usecols=(0,), )	"does not work when the file has only one line"
     with open('names.txt') as f:
         stars = f.readlines()
     f.close()
-    
     var = 'Y'
 
     # Read the data from exoplanet.eu
@@ -60,9 +59,7 @@ if __name__ == '__main__':
     output = 'WEBSITE_online.rdb'
 
     for i, star in enumerate(stars):
-            
-        if star[-1]=='\n':
-            star=star[:-1]                                        # removing '\n' from the strings
+        star = star.stip('\n')
         exo = exo_all[exo_all.star_name == star]
         next = True
 
@@ -81,10 +78,10 @@ if __name__ == '__main__':
             next = False
             # Update the list of new hosts
             with open('names.txt', 'w') as names:
-# if the last star was added so no star is updated
+                # if the last star was added so no star is updated
                 if i+1==len(stars):
                     names.write('')
-                else:    
+                else:
                     for j in stars[i+1:]:
                         names.write(j)
             names.close()
@@ -160,12 +157,12 @@ if __name__ == '__main__':
                     Teff = variable_assignment(0)
                     puts('The error on ' + colored.yellow('Teff'))
                     Tefferr = variable_assignment(0)
-                                                                       # the Teff is not float
+                    # the Teff is not float
                 else:
                     Teff = int(Teff_exo)
                     puts('The error on ' + colored.yellow('Teff'))
                     Tefferr = variable_assignment(0)
-                
+
                 # The log g
                 puts('The ' + colored.yellow('logg'))
                 logg = variable_assignment(2)
@@ -230,7 +227,7 @@ if __name__ == '__main__':
                     comment = 'NULL'
 
                 params = [name, HD, RA, DEC, V, Verr, p, perr, pflag, Teff, Tefferr,logg, loggerr, 'NULL', 'NULL', vt, vterr, FeH, Ferr, M, Merr,
-                    author, link, source, update, comment]
+                          author, link, source, update, comment]
                 params = map(str, params)
 
                 # New host information
@@ -240,10 +237,10 @@ if __name__ == '__main__':
 
                 # Update the list of new hosts
                 with open('names.txt', 'w') as names:
-# if the last star was added so no star is updated
+                    # if the last star was added so no star is updated
                     if i+1==len(stars):
                         names.write('')
-                    else:    
+                    else:
                         for j in stars[i+1:]:
                             names.write(j)
                 names.close()
