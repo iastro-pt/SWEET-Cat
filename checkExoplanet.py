@@ -29,7 +29,7 @@ class Update:
         else:
             self.fname = 'exo.csv'
 
-        self.blacklist = ['HD 59686 A','Kepler-420 A','Kepler-539']
+        self.blacklist = ['HD 59686 A','Kepler-420 A','Kepler-539','HD 202206 B']
 
         self.readSC()
         self.downloadExoplanet()
