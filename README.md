@@ -9,6 +9,14 @@ versions and the currently used version on the
 Note that the latest version is always available for download on the web page.
 
 
+TOPCAT
+======
+
+To use with topcat, either download this entire folder as a [zip](https://github.com/DanielAndreasen/SWEET-Cat/archive/master.zip) file or clone it with `git clone https://github.com/DanielAndreasen/SWEET-Cat`
+to always have the latest version.
+Then import the file in TOPCAT called `SWEETCAT_topcat.csv` which is a `csv`
+version of the `WEBSITE_online.rdb` with named columns.
+
 
 Installation
 ============
