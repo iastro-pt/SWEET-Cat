@@ -1,3 +1,4 @@
+star,HD,RA,dec,Vmag,Vmagerr,par,parerr,parsource,teff,tefferr,logg,loggerr,logglc,logglcerr,vt,vterr,feh,feherr,mass,masserr,author,link,flag,updated,comment,alternative_name
 11 Com,107383,12 20 43.02,+17 47 34.33,4.74,0.02,11.25,0.22,Simbad,4830,79,2.61,0.13,NULL,NULL,1.7,0.1,-0.34,0.06,2,0.29,Mortier et al. 2013b,http://adsabs.harvard.edu/abs/2013A%26A...557A..70M,1,2013-08-01,NULL,NULL
 11 UMi,136726,15 17 05.88,+71 49 26.04,5.02,NULL,8.19,0.19,Simbad,4255,88,1.8,0.26,NULL,NULL,1.79,0.08,-0.13,0.04,3.4,0.77,Sousa et al. 2015,http://adsabs.harvard.edu/abs/2015arXiv150302443S,1,2015-03-12,NULL,NULL
 14 And,221345,23 31 17.41,+39 14 10.30,5.22,NULL,12.63,0.27,Simbad,4709,37,2.44,0.12,NULL,NULL,1.51,0.03,-0.29,0.03,2.38,0.29,Sousa et al. 2015,http://adsabs.harvard.edu/abs/2015arXiv150302443S,1,2015-03-12,NULL,NULL
