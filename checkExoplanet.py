@@ -6,8 +6,13 @@ import os
 import urllib2
 import pandas as pd
 import numpy as np
+import time
 from astropy.io import votable
 import warnings
+from astropy import coordinates as coord
+from astropy import units as u
+from astroquery.simbad import Simbad
+
 # For fun, but still useful
 from clint.textui import puts, colored
 
@@ -29,7 +34,9 @@ class Update:
         else:
             self.fname = 'exo.csv'
 
-        self.blacklist = ['HD 59686 A','Kepler-420 A','Kepler-539','HD 202206 B']
+        self.blacklist = ['Kepler-1647 (AB)','Kepler-453 (AB)']
+# Kepler-1647 (AB), Kepler-453 (AB) keep in the black list because I have the parameters for both stars
+# Kapteyn's can't be added with the ' in the website
 
         self.readSC()
         self.downloadExoplanet()
@@ -66,10 +73,13 @@ class Update:
 
     def remove_planet(self, name):
         """Remove the trailing b, c, d, etc in the stellar name"""
-        planets = 'abcdefgh'
+        planets = 'bcdefghB'
         for planet in planets:
             if name.endswith(' %s' % planet):
                 return name[:-2]
+        # some exoplanets have .01 or .02 in the name 
+        if name.endswith('.01') or name.endswith('.02') or name.endswith('.2'):
+            return name[:-3]                
         return name
 
     def readSC(self):
@@ -82,7 +92,7 @@ class Update:
                   'n1', 'n2', 'vt', 'vterr', 'feh', 'feherr', 'M', 'Merr',
                   'author', 'link', 'source', 'update', 'comment', 'n3']
         SC = pd.read_csv('WEBSITE_online.rdb', delimiter='\t', names=names_)
-        self.sc_names = map(lambda x: x.lower().replace(' ', ''), SC.name)
+        self.sc_names = map(lambda x: x.lower().replace(' ', '').replace('-', ''), SC.name)
         self.sc_names = map(str.strip, self.sc_names)
         self.coordinates = SC.loc[:, ['ra', 'dec']]
 
@@ -121,7 +131,8 @@ class Update:
         NewStars = []
         for i, exo_name in enumerate(self.exo_names):
             new = self.remove_planet(self.exoplanet['name'].values[i])
-            tmp = new.lower().replace(' ', '')
+            starName=self.exoplanet['star_name'].values[i]
+            tmp = new.lower().replace(' ', '').replace('-', '') 
 
             RAexo = self.exoplanet['ra'].values[i]
             DEexo = self.exoplanet['dec'].values[i]
@@ -130,28 +141,58 @@ class Update:
             for j in xrange(len(self.sc_names)):
                 # converting RA (h:m:s->degrees) and DE (d:m:s->degrees)
                 RAsc, DEsc = self._sccoordinates(j)
-
                 # compute the spherical distance
                 dist = 999
                 if abs(RAexo-RAsc) < 1:
                     dist = 3600 * (((RAexo-RAsc)*np.cos(np.radians(DEexo)))**2 + (DEexo-DEsc)**2)**0.5
                 if dist < 5:  # 5 arc seconds is a good tolerance in distance
                     found = True
+                    position=j
                     break
-
             if self.controversial:
-                if exo_name in self.sc_names:
-                    if (tmp in self.sc_names) and (tmp not in true_names):
-                        NewStars.append(new)
+                if tmp in self.sc_names and (tmp not in true_names):
+                    NewStars.append(new)
             else:
-                if (exo_name not in self.sc_names) and (exo_name not in self.blacklist):
-                    if new in self.blacklist:
-                        continue
+                if (not found):
+                    try:
+                        # it didn't find by position but it finds by name
+                        position=self.sc_names.index(tmp)
+                    except:
+                        position=-1
+                        # it didn't find by position and neither by name
+                        if (tmp not in self.blacklist):
+                            NewStars.append(new)
 
-                    # the positions in exoplanets.eu are wrong sometimes because they dont use J2000, so double check position and name
-                    elif (not found) and (tmp not in self.sc_names):
-                        NewStars.append(new)
+                    #  REMOVE THE COMMENTS TO CHECK PROBLEMS IN POSITION
+#                    if position>=0:
+#                        RAsc, DEsc = self._sccoordinates(position)
+#                        result_table = Simbad.query_object(new)
+                        # it found the star in Simbad
+#                        try:
+                            # check in Simbad the position and see where the coordinates are wrong
+#                            ra=result_table['RA'][0]
+#                            dec=result_table['DEC'][0]
+                            # position in Simbad
+#                            coordS=coord.SkyCoord(ra, dec, unit=(u.hourangle, u.degree), frame='icrs')
+                            # position in Exoplanet.eu 
+#                            coordE = coord.SkyCoord(RAexo, DEexo, unit=(u.degree, u.degree), frame='icrs')
+                            # position in Sweet-Cat
+#                            coordSC = coord.SkyCoord(RAsc, DEsc, unit=(u.degree, u.degree), frame='icrs')
+#                            sepES = coordE.separation(coordS).arcsecond
+#                            sepSCS = coordS.separation(coordSC).arcsecond
+#                            if sepES>sepSCS:
+#                                print new,': has wrong position in Exoplanet.eu, it is: ',coordE.ra, coordE.dec,', but should be: ',coordS.ra,coordS.dec
+#                            else:
+#                                print new,': has wrong position in Sweet-Cat, it is: ',coordSC.ra, coordSC.dec,', but should be: ',coordS.ra,coordS.dec
+#                        except:    
+#                            with open('starnotfoundinsimbad.list', 'a') as f:
+#                                f.write(new+'\n')
 
+                #  REMOVE THE COMMENTS TO CHECK PROBLEMS WITH THE NAMES
+#                else:
+#                    if (tmp not in self.sc_names):
+#                        print new, ': has a different name in Sweet-Cat (',self.sc_names[position],')'
+                        
         NewStars = sorted(list(set(NewStars)))
         Nstars = len(NewStars)
 
@@ -169,6 +210,8 @@ class Update:
 
 
 if __name__ == '__main__':
+    with open('starnotfoundinsimbad.list', 'a') as f:
+        f.write(str(time.strftime("%d-%m-%Y"))+'\n')
     new = Update(controversial=False, download=True)
     new.update()
     print('\n')
