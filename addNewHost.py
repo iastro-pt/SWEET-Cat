@@ -59,7 +59,7 @@ if __name__ == '__main__':
     output = 'WEBSITE_online.rdb'
 
     for i, star in enumerate(stars):
-        star = star.stip('\n')
+        star = star.strip('\n')
         exo = exo_all[exo_all.star_name == star]
         next = True
 
