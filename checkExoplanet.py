@@ -34,8 +34,7 @@ class Update:
         else:
             self.fname = 'exo.csv'
 
-        self.blacklist = ['Kepler-1647 (AB)','Kepler-453 (AB)']
-# Kepler-1647 (AB), Kepler-453 (AB) keep in the black list because I have the parameters for both stars
+        self.blacklist = []
 # Kapteyn's can't be added with the ' in the website
 
         self.readSC()
@@ -69,11 +68,11 @@ class Update:
             # Divide the data in Confirmed and not.
             df[df.planet_status == 'Confirmed'].to_csv('exo.csv', index=False)
             df[(df.planet_status == 'Unconfirmed') | (df.planet_status == 'Candidate')].to_csv('exo_cont.csv', index=False)
-            os.remove('exo.xml')
+            #os.remove('exo.xml')
 
     def remove_planet(self, name):
         """Remove the trailing b, c, d, etc in the stellar name"""
-        planets = 'bcdefghB'
+        planets = 'bcdefghijB'
         for planet in planets:
             if name.endswith(' %s' % planet):
                 return name[:-2]
