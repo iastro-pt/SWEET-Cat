@@ -12,10 +12,9 @@ import warnings
 from astropy import coordinates as coord
 from astropy import units as u
 from astroquery.simbad import Simbad
-
 # For fun, but still useful
 from clint.textui import puts, colored
-
+warnings.simplefilter("ignore")
 
 def writeFile(fname, data):
     """Write data to a file"""
@@ -29,13 +28,13 @@ class Update:
         self.controversial = controversial
         self.download = download
 
-        if self.controversial:
-            self.fname = 'exo_cont.csv'
-        else:
-            self.fname = 'exo.csv'
+        # if self.controversial:
+        #     self.fname = 'exo_cont.csv'
+        # else:
+        self.fname = 'exo.csv'
 
         self.blacklist = []
-# Kapteyn's can't be added with the ' in the website
+        # Kapteyn's can't be added with the ' in the website
 
         self.readSC()
         self.downloadExoplanet()
@@ -55,7 +54,8 @@ class Update:
         df = pd.read_csv(self.fname)
         df = df[(df.detection_type == 'Radial Velocity') | (df.detection_type == 'Primary Transit') | (df.detection_type == 'Astrometry')]
         self.exoplanet = df
-        self.exo_names = self.exoplanet.star_name
+        names=map(lambda x: self.remove_planet(x),self.exoplanet['name'])
+        self.exo_names = map(lambda x: x.strip(), names)
 
     def xml2csv(self):
         """Convert the saved xml file to csv and read with pandas"""
@@ -93,6 +93,7 @@ class Update:
         SC = pd.read_csv('WEBSITE_online.rdb', delimiter='\t', names=names_)
         self.sc_names = map(lambda x: x.lower().replace(' ', '').replace('-', ''), SC.name)
         self.sc_names = map(str.strip, self.sc_names)
+        self.sc_names_orig = map(lambda x: x.strip(), SC.name)
         self.coordinates = SC.loc[:, ['ra', 'dec']]
 
     def _sccoordinates(self, idx):
@@ -121,98 +122,100 @@ class Update:
         return RAsc, DEsc
 
     def update(self):
-        if self.controversial:
-            df = pd.read_csv('exo.csv')
-            true_names = map(lambda x: self.remove_planet(x).lower().replace(' ', ''), df.name)
-
         # We have this already, but without the ' in the name.
-        print '\nMatching data base...'
+        print '\n    Matching data base...'
+
         NewStars = []
+        coordExo=coord.SkyCoord(ra=self.exoplanet['ra'].values, dec=self.exoplanet['dec'].values,unit=(u.deg,u.deg),frame='icrs')
+        coordSC=coord.SkyCoord(ra=self.coordinates['ra'].values, dec=self.coordinates['dec'].values,unit=(u.hourangle,u.deg),frame='icrs')
+
         for i, exo_name in enumerate(self.exo_names):
-            new = self.remove_planet(self.exoplanet['name'].values[i])
+            new = exo_name 
             starName=self.exoplanet['star_name'].values[i]
             tmp = new.lower().replace(' ', '').replace('-', '') 
 
-            RAexo = self.exoplanet['ra'].values[i]
-            DEexo = self.exoplanet['dec'].values[i]
-            found = False
+            sep = coordExo[i].separation(coordSC).arcsecond
+            ind=np.where(sep<5.)[0]
 
-            for j in xrange(len(self.sc_names)):
-                # converting RA (h:m:s->degrees) and DE (d:m:s->degrees)
-                RAsc, DEsc = self._sccoordinates(j)
-                # compute the spherical distance
-                dist = 999
-                if abs(RAexo-RAsc) < 1:
-                    dist = 3600 * (((RAexo-RAsc)*np.cos(np.radians(DEexo)))**2 + (DEexo-DEsc)**2)**0.5
-                if dist < 5:  # 5 arc seconds is a good tolerance in distance
-                    found = True
-                    position=j
-                    break
-            if self.controversial:
-                if tmp in self.sc_names and (tmp not in true_names):
-                    NewStars.append(new)
-            else:
-                if (not found):
-                    try:
-                        # it didn't find by position but it finds by name
-                        position=self.sc_names.index(tmp)
-                    except:
-                        position=-1
-                        # it didn't find by position and neither by name
-                        if (tmp not in self.blacklist):
-                            NewStars.append(new)
+            if len(ind)==0:
+                try:
+                    # it didn't find by position but it finds by name
+                    position=self.sc_names.index(tmp)
+                except:
+                    position=-1
+                    # it didn't find by position and neither by name
+                    if (tmp not in self.blacklist):
+                        NewStars.append(new)
 
-                    #  REMOVE THE COMMENTS TO CHECK PROBLEMS IN POSITION
-#                    if position>=0:
-#                        RAsc, DEsc = self._sccoordinates(position)
-#                        result_table = Simbad.query_object(new)
-                        # it found the star in Simbad
-#                        try:
-                            # check in Simbad the position and see where the coordinates are wrong
-#                            ra=result_table['RA'][0]
-#                            dec=result_table['DEC'][0]
-                            # position in Simbad
-#                            coordS=coord.SkyCoord(ra, dec, unit=(u.hourangle, u.degree), frame='icrs')
-                            # position in Exoplanet.eu 
-#                            coordE = coord.SkyCoord(RAexo, DEexo, unit=(u.degree, u.degree), frame='icrs')
-                            # position in Sweet-Cat
-#                            coordSC = coord.SkyCoord(RAsc, DEsc, unit=(u.degree, u.degree), frame='icrs')
-#                            sepES = coordE.separation(coordS).arcsecond
-#                            sepSCS = coordS.separation(coordSC).arcsecond
-#                            if sepES>sepSCS:
-#                                print new,': has wrong position in Exoplanet.eu, it is: ',coordE.ra, coordE.dec,', but should be: ',coordS.ra,coordS.dec
-#                            else:
-#                                print new,': has wrong position in Sweet-Cat, it is: ',coordSC.ra, coordSC.dec,', but should be: ',coordS.ra,coordS.dec
-#                        except:    
-#                            with open('starnotfoundinsimbad.list', 'a') as f:
-#                                f.write(new+'\n')
+                #  REMOVE THE COMMENTS TO CHECK PROBLEMS IN POSITION
+#                 if position>=0:
 
-                #  REMOVE THE COMMENTS TO CHECK PROBLEMS WITH THE NAMES
-#                else:
-#                    if (tmp not in self.sc_names):
-#                        print new, ': has a different name in Sweet-Cat (',self.sc_names[position],')'
+#                     result_table = Simbad.query_object(new)
+#                     try:
+#                         # check in Simbad the position and see where the coordinates are wrong
+#                         ra=str(result_table['RA'][0])
+#                         dec=str(result_table['DEC'][0])
+#                         coordS=coord.SkyCoord(ra, dec, unit=(u.hourangle, u.degree), frame='icrs')
+#                         sepES = coordExo[i].separation(coordS).arcsecond
+#                         sepSCS = coordSC[position].separation(coordS).arcsecond
+
+#                         if sepES>sepSCS:
+# #                            print new,': has wrong position in Exoplanet.eu, it is: ',coordExo[i].ra.deg, coordExo[i].dec.deg,', but should be: ',coordS.ra.deg,coordS.dec.deg
+#                             pass
+#                         else:
+#                            print new,': has wrong position in Sweet-Cat, it is: ',coordSC[position].ra.deg, coordSC[position].dec.deg,', but should be: ',coordS.ra.deg,coordS.dec.deg
+#                     except:
+#                         print 'Star not found in Simbad with this name ',new,'.\n Position in Exoplanet.eu:',coordExo[i].ra.deg, coordExo[i].dec.deg,'\n Position in SC: ',coordSC[position].ra.deg, coordSC[position].dec.deg
+#                         with open('starnotfoundinsimbad.list', 'a') as f:
+#                             f.write(new+'\n')
+
+            #  REMOVE THE COMMENTS TO CHECK PROBLEMS WITH THE NAMES
+            # else:
+            #     position=ind[0]
+            #     if (tmp not in self.sc_names):
+            #         print new, ': has a different name in Sweet-Cat (',self.sc_names[position],')'
                         
         NewStars = sorted(list(set(NewStars)))
         Nstars = len(NewStars)
 
         if Nstars:
-            puts(colored.green(str(Nstars) + " new exoplanet available!"))
-
-            if self.controversial:
-                writeFile('names_contr.txt', '\n'.join(NewStars))
-            else:
-                writeFile('names.txt', '\n'.join(NewStars))
+            puts('    '+colored.green(str(Nstars) + " new exoplanet available!"))
+            writeFile('names.txt', '\n'.join(NewStars))
+            updated=False
         else:
-            puts(colored.clean('No new updates available.'))
-            puts(colored.clean('SWEET-Cat is up to date'))
-            puts(colored.green('Great job :)'))
+            puts(colored.clean('    No new updates available.'))
+            updated=True
+
+        # removing planets that are not in Exoplanet.eu anymore    
+        NewStars = []
+
+        for i, scname in enumerate(self.sc_names_orig):
+            sep = coordSC[i].separation(coordExo).arcsecond
+            ind=np.where(sep<5.)[0]
+            if len(ind)==0:
+                try:
+                    # it didn't find by position but it finds by name
+                    position=self.exo_names.index(scname)
+                except:
+                    position=-1
+                    # it didn't find by position and neither by name
+                    if (tmp not in self.blacklist):
+                        NewStars.append(scname)
+
+        NewStars = sorted(list(set(NewStars)))
+        Nstars = len(NewStars)
+        if Nstars:
+            puts(colored.green('    '+str(Nstars) + " exoplanet has to be removed!"))
+            print '\n    '.join(NewStars)
+        else:
+            puts(colored.clean('    No planet to remove.'))
+            if updated:        
+                puts(colored.clean('    SWEET-Cat is up to date'))
+                puts(colored.green('    Great job :)'))
 
 
 if __name__ == '__main__':
     with open('starnotfoundinsimbad.list', 'a') as f:
         f.write(str(time.strftime("%d-%m-%Y"))+'\n')
-    new = Update(controversial=False, download=True)
+    new = Update(controversial=False, download=False)
     new.update()
-    print('\n')
-    remove = Update(controversial=True)
-    remove.update()
