@@ -12,6 +12,30 @@ from ParallaxSpec import parallax
 from astroquery.simbad import Simbad
 import warnings
 warnings.filterwarnings('ignore')
+from astroquery.irsa_dust import IrsaDust
+from astroquery.vizier import Vizier
+
+def GAIAplx(ra,de):
+    v = Vizier(columns=["*", "+_r"], catalog='I/345/gaia2')
+    pos=coord.SkyCoord(ra=ra, dec=de,unit=(u.hourangle,u.deg),frame='icrs',obstime='J2000')
+    result=v.query_region(pos, radius="10s", catalog='I/345/gaia2')
+    # Moving the positions to 2000
+    try:
+        nlines=len(result[0]['RA_ICRS'])
+        deltat=-15.5
+        sep=[]
+        for ig,name in enumerate(result[0]['Source']):
+            raold=result[0]['RA_ICRS'].data[ig]+(result[0]['pmRA'].data[ig] *deltat)/3600000.
+            deold=result[0]['DE_ICRS'].data[ig]+(result[0]['pmDE'].data[ig] *deltat)/3600000.
+            posold = coord.ICRS(ra=raold * u.deg, dec=deold * u.deg)
+            sep.append(pos.separation(posold).arcsecond)
+        indG=np.argmin(sep)
+        if sep[indG]<1.5 and result[0]['Plx'].data[indG]>0:
+            return str(round(result[0]['Plx'].data[indG],2)), str(round(result[0]['e_Plx'].data[indG],2))
+    except:
+        return 'NULL','NULL'
+
+    return 'NULL','NULL'
 
 def torres(name, teff=False, logg=False, feh=False):
     """
@@ -33,7 +57,6 @@ def torres(name, teff=False, logg=False, feh=False):
     puts(colored.green('Done'))
     return round(M, 2), round(Merr, 2)
 
-
 def variable_assignment(digits):
     try:
         if digits>0:
@@ -43,7 +66,6 @@ def variable_assignment(digits):
     except SyntaxError, e:
         x = 'NULL'
     return x
-
 
 if __name__ == '__main__':
     # stars = np.loadtxt('names.txt', dtype='S', delimiter='\t',usecols=(0,), )	"does not work when the file has only one line"
@@ -99,6 +121,23 @@ if __name__ == '__main__':
                 # Get RA and dec
                 ra, dec = float(exo.ra.values[0]), float(exo.dec.values[0])
                 c = coord.SkyCoord(ra, dec, unit=(u.degree, u.degree), frame='icrs')
+                RA = list(c.ra.hms)
+                RA[0] = str(int(RA[0])).zfill(2)
+                RA[1] = str(int(RA[1])).zfill(2)
+                RA[2] = str(round(RA[2], 2)).zfill(4)
+                if len(RA[2]) == 4:
+                    RA[2] += '0'
+                RA = "{0} {1} {2}".format(*RA)
+
+                DEC = list(c.dec.dms)
+                DEC[0] = str(int(DEC[0])).zfill(2)
+                DEC[1] = str(abs(int(DEC[1]))).zfill(2)
+                DEC[2] = str(abs(round(DEC[2], 2))).zfill(4)
+                if int(DEC[0]) > 0:
+                    DEC[0] = '+'+DEC[0]
+                if len(DEC[2]) == 4:
+                    DEC[2] += '0'
+                DEC = "{0} {1} {2}".format(*DEC)
                 # search in Simbad the parallax, Vmag and spectral type
                 customSimbad = Simbad()
                 customSimbad.add_votable_fields('plx','plx_error','flux(V)','flux_error(V)','sptype','otype','ids','dist')
@@ -212,6 +251,7 @@ if __name__ == '__main__':
                         if type(result['FLUX_ERROR_V'][indr])!=np.ma.core.MaskedConstant:    
                             Verr=round(float(result['FLUX_ERROR_V'][indr]), 2)
                         else:
+                            print '\nV magnitude = '+str(V)
                             puts('The error on ' + colored.yellow('V magnitude'))
                             Verr = variable_assignment(2)
                             if Verr == '':
@@ -224,13 +264,19 @@ if __name__ == '__main__':
                             V = variable_assignment(2)
                             if V == '':
                                 V = 'NULL'
+                        print '\nV magnitude = '+str(V)
                         puts('The error on ' + colored.yellow('V magnitude'))
                         Verr = variable_assignment(2)
                         if Verr == '':
                             Verr = 'NULL'
 
                     # The parallax
-                    if type(result['PLX_VALUE'][indr])!=np.ma.core.MaskedConstant:
+                    plx,eplx=GAIAplx(RA, DEC)
+                    if plx!='NULL':
+                        p = plx
+                        perr = eplx
+                        pflag = 'GAIADR2' 
+                    elif type(result['PLX_VALUE'][indr])!=np.ma.core.MaskedConstant:
                         p=round(float(result['PLX_VALUE'][indr]),2)
                         if type(result['PLX_VALUE'][indr])!=np.ma.core.MaskedConstant:
                             perr=round(float(result['PLX_ERROR'][indr]),2)
@@ -239,8 +285,16 @@ if __name__ == '__main__':
                         pflag='Simbad'
                     else:
                         try:
-                            p = round(parallax(Teff, float(logg), V, M), 2)
-                            perr = 'NULL'
+                            pos=coord.SkyCoord(ra=ra, dec=dec,unit=(u.hourangle,u.deg),frame='icrs')
+                            #AvSF = Schlafly & Finkbeiner 2011 (ApJ 737, 103)
+                            tableAv = IrsaDust.get_query_table(pos, radius='02d', section='ebv', timeout=60)
+                            Av=tableAv['ext SandF mean'].data[0]
+                            Averr=tableAv['ext SandF std'].data[0]
+                        except:
+                            Av=0
+                            Averr=0
+                        try:    
+                            p,perr = map(lambda x: round(x,2), parallax(Teff,Tefferr, float(logg),float(loggerr), V,Verr, M,Merr,Av,Averr))
                             pflag = 'Spec'                             
                         except:
                             p = 'NULL'
@@ -259,24 +313,6 @@ if __name__ == '__main__':
 
                 except:
 
-                    RA = list(c.ra.hms)
-                    RA[0] = str(int(RA[0])).zfill(2)
-                    RA[1] = str(int(RA[1])).zfill(2)
-                    RA[2] = str(round(RA[2], 2)).zfill(4)
-                    if len(RA[2]) == 4:
-                        RA[2] += '0'
-                    RA = "{0} {1} {2}".format(*RA)
-
-                    DEC = list(c.dec.dms)
-                    DEC[0] = str(int(DEC[0])).zfill(2)
-                    DEC[1] = str(abs(int(DEC[1]))).zfill(2)
-                    DEC[2] = str(abs(round(DEC[2], 2))).zfill(4)
-                    if int(DEC[0]) > 0:
-                        DEC[0] = '+'+DEC[0]
-                    if len(DEC[2]) == 4:
-                        DEC[2] += '0'
-                    DEC = "{0} {1} {2}".format(*DEC)
-                    
                     # The HD number
                     puts('The '+colored.yellow('HD number'))
                     HD = raw_input('> ')
@@ -289,18 +325,34 @@ if __name__ == '__main__':
                     else:    
                         puts('The ' + colored.yellow('V magnitude'))
                         V = variable_assignment(2)
+                    print '\nV magnitude = '+str(V)
                     puts('The error on ' + colored.yellow('V magnitude'))
                     Verr = variable_assignment(2)
 
                     # The parallax
-                    try:
-                        p = round(parallax(Teff, float(logg), V, M), 2)
-                        perr = 'NULL'
-                        pflag = 'Spec'                             
-                    except:
-                        p = 'NULL'
-                        perr = 'NULL'
-                        pflag = 'NULL' 
+                    plx,eplx=GAIAplx(RA,DEC)
+                    if plx!='NULL':
+                        p = plx
+                        perr = eplx
+                        pflag = 'GAIADR2' 
+                    else:
+                        try:
+                            pos=coord.SkyCoord(ra=RA, dec=DEC,unit=(u.hourangle,u.deg),frame='icrs')
+                            #AvSF = Schlafly & Finkbeiner 2011 (ApJ 737, 103)
+                            tableAv = IrsaDust.get_query_table(pos, radius='02d', section='ebv', timeout=60)
+                            Av=tableAv['ext SandF mean'].data[0]
+                            Averr=tableAv['ext SandF std'].data[0]
+                        except:
+                            Av=0
+                            Averr=0
+                        try:
+                            p,perr = map(lambda x: round(x,2), parallax(Teff,Tefferr, logg,loggerr, V,Verr, M,Merr,Av,Averr))
+                            pflag = 'Spec'                             
+                            # print p,perr
+                        except:
+                            p = 'NULL'
+                            perr = 'NULL'
+                            pflag = 'NULL' 
 
                     # Comments
                     puts('Any '+colored.yellow('comments'))
