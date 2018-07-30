@@ -1,29 +1,34 @@
 #!/usr/bin/python
 
-"""
-Program to find the Stellar Mass through Torres
-
-The program needs one inputfile (rdb format):
-File format of stellar atmosphere parameters:
-Name Teff errTeff Logg errLogg Metal errMetal (...)
-
-Usage: python TorresMass.py file.rdb
-
-Program will print the output on the screen
-"""
-
-import sys
 import numpy as np
-
+from astroquery.vizier import Vizier
 
 def massTorres(teff, erteff, logg, erlogg, feh, erfeh):
-    """Calculate a mass using the Torres calibration"""
-    ntrials = 10000
+    """ 
+    Calculate stellar mass using the Torres et al. (2010) callibration.
+    Parameters
+    ----------
+    teff, erteff : floats
+        Effective temperature and associated uncertainty.
+    logg, erlogg : floats
+        Surface gravity and associated uncertainty.
+    feh, erfeh : floats
+        Metallicity [Fe/H] and associated uncertainty.
+   
+    Returns
+    -------
+    meanMass, sigMass : floats
+        Estimate for the stellar mass and associated uncertainty.
+    """
+
+    # Number of Monte Carlo trials for the uncertainty calculation.
+    ntrials=10000
+
     randomteff = teff + erteff * np.random.randn(ntrials)
     randomlogg = logg + erlogg * np.random.randn(ntrials)
     randomfeh = feh + erfeh * np.random.randn(ntrials)
 
-    # Parameters for the Torres calibration:
+    # Parameters for the Torres calibration
     a1 = 1.5689
     a2 = 1.3787
     a3 = 0.4243
@@ -32,23 +37,25 @@ def massTorres(teff, erteff, logg, erlogg, feh, erfeh):
     a6 = 0.01969
     a7 = 0.1010
 
-    M = np.zeros(ntrials)
-    logM = np.zeros(ntrials)
-    for i in xrange(ntrials):
-        X = np.log10(randomteff[i]) - 4.1
-        logMass = a1 + a2 * X + a3 * X * X + a4 * X * X * X + a5 *\
-            randomlogg[i] * randomlogg[i] + a6 * randomlogg[i] *\
-            randomlogg[i] * randomlogg[i] + a7 * randomfeh[i]
-        logM[i] = logMass
-        M[i] = 10 ** logMass
-
-    meanMasslog = np.mean(logM)
-    sigMasslog = np.sqrt(np.sum([(logMi - meanMasslog)**2 for logMi in logM]) /
-                         (ntrials - 1))
-    sigMasslogTot = np.sqrt(0.027*0.027 + sigMasslog*sigMasslog)
-
-    meanMass = 10**meanMasslog
-    sigMass = 10**(meanMasslog + sigMasslogTot) - meanMass
+    X = np.log10(randomteff) - 4.1
+    
+    logMass = a1 + a2*X + a3*X**2 + a4*X**3 + a5*randomlogg**2 + a6*randomlogg**3 + a7*randomfeh
+    meanlogMass = np.mean(logMass)
+    siglogMass = np.sum((logMass - meanlogMass)**2) / (ntrials - 1)
+    # Add (quadratically) the intrinsic error of the calibration (0.027 in log mass).
+    siglogMass = np.sqrt(0.027**2 + siglogMass)
+    meanMass = 10**meanlogMass
+    sigMass = 10**(meanlogMass + siglogMass) - meanMass
+    
+    # Correct the mass for the offset relative to isochrone-derived masses.
+    if .7<=meanMass<=1.3:
+        # correction comes from Santos+(2013), the SWEET-Cat paper
+        randomMass = meanMass + sigMass * np.random.randn(ntrials)
+        corrected_Mass = 0.791 * randomMass**2 - 0.575 * randomMass + 0.701
+        meanMassCor = np.mean(corrected_Mass)
+        sigMassCor = np.sqrt(np.sum((corrected_Mass - meanMassCor)**2) / (ntrials - 1))
+        print meanMass, sigMass, meanMassCor, sigMassCor
+        return meanMassCor, sigMassCor
 
     return meanMass, sigMass
 
@@ -71,20 +78,16 @@ def radTorres(teff, erteff, logg, erlogg, feh, erfeh):
     R = np.zeros(ntrials)
     logR = np.zeros(ntrials)
 
-    for i in xrange(ntrials):
-        X = np.log10(randomteff[i]) - 4.1
-        logRad = b1 + b2 * X + b3 * X * X + b4 * X * X * X + b5 *\
-            randomlogg[i] * randomlogg[i] + b6 * randomlogg[i] *\
-            randomlogg[i] * randomlogg[i] + b7 * randomfeh[i]
-        logR[i] = logRad
-        R[i] = 10 ** logRad
+    X = np.log10(randomteff) - 4.1
+    logRad = b1 + b2 * X + b3 * X * X + b4 * X * X * X + b5 * randomlogg * randomlogg \
+    + b6 * randomlogg * randomlogg * randomlogg + b7 * randomfeh
+    R = 10 ** logRad
 
-    meanRadlog = np.mean(logR)
-    sigRadlog = np.sqrt(np.sum([(logRi-meanRadlog)**2 for logRi in logR]) /
-                        (ntrials-1))
-    sigRadlogTot = np.sqrt(0.014*0.014 + sigRadlog*sigRadlog)
+    meanRadlog = np.mean(logRad)
+    sigRadlog = np.sqrt(np.sum((logRad-meanRadlog)**2) / (ntrials-1))
+    sigRadlog = np.sqrt(0.014**2 + sigRadlog**2)
 
     meanRad = 10**meanRadlog
-    sigRad = 10**(meanRadlog + sigRadlogTot) - meanRad
+    sigRad = 10**(meanRadlog + sigRadlog) - meanRad
 
     return meanRad, sigRad
