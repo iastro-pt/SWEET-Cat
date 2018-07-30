@@ -54,7 +54,6 @@ def massTorres(teff, erteff, logg, erlogg, feh, erfeh):
         corrected_Mass = 0.791 * randomMass**2 - 0.575 * randomMass + 0.701
         meanMassCor = np.mean(corrected_Mass)
         sigMassCor = np.sqrt(np.sum((corrected_Mass - meanMassCor)**2) / (ntrials - 1))
-        print meanMass, sigMass, meanMassCor, sigMassCor
         return meanMassCor, sigMassCor
 
     return meanMass, sigMass
