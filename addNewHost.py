@@ -80,7 +80,7 @@ if __name__ == '__main__':
 
     # Remove trailing whitespaces
     exo_all.star_name = exo_all.star_name.str.strip()
-    output = 'WEBSITE_online.rdb'
+    output = 'WEBSITE_online_ADD.rdb'
 
     for i, star in enumerate(stars):
         star = star.strip('\n')
@@ -140,7 +140,8 @@ if __name__ == '__main__':
                 DEC = "{0} {1} {2}".format(*DEC)
                 # search in Simbad the parallax, Vmag and spectral type
                 customSimbad = Simbad()
-                customSimbad.add_votable_fields('plx','plx_error','flux(V)','flux_error(V)','sptype','otype','ids','dist')
+#                customSimbad.add_votable_fields('plx','plx_error','flux(V)','flux_error(V)','sptype','otype','ids','dist')
+                customSimbad.add_votable_fields('plx','plx_error','flux(V)','flux_error(V)','sptype','otype','ids')
                 result = customSimbad.query_region(coord.SkyCoord(ra=c.ra, dec=c.dec,frame='icrs'),radius='15s')
 
                 empty='NULL'
