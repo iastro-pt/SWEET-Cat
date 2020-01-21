@@ -6,7 +6,7 @@
 #
 
 # My imports
-from __future__ import division
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -16,7 +16,7 @@ try:
     sns.set_context('talk', font_scale=1.2)
     color = sns.color_palette()
 except ImportError:
-    print 'Install seaborn for better plots (optional): pip install seaborn'
+    print('Install seaborn for better plots (optional): pip install seaborn')
     color = 'b,g,r,m,y,k'.split(',')
 try:
     import pandas as pd
@@ -38,7 +38,7 @@ def radTorres(teff, erteff, logg, erlogg, feh, erfeh):
     b7 = 0.04173
 
     logR = np.zeros(ntrials)
-    for i in xrange(ntrials):
+    for i in range(ntrials):
         X = np.log10(randomteff[i]) - 4.1
         logR[i] = b1 + b2*X + b3*X**2 + b4*X**3 + b5*randomlogg[i]**2 + b6*randomlogg[i]**3 + b7*randomfeh[i]
 
@@ -77,39 +77,39 @@ def _parser():
 if __name__ == '__main__':
     args = _parser()
     # Prepare the SWEET-Cat data
-    print 'Downloading the data from SWEET-Cat...'
+    print('Downloading the data from SWEET-Cat...')
     sc = pyasl.SWEETCat()
     sc.downloadData()
     sc = sc.data
 
-    newname = map(lambda x: x.lower().replace(' ', ''), sc.star)  # Put name lower and remove all spaces
-    newname = map(str.strip, newname)  # Remove all newline or tab characters
+    newname = [x.lower().replace(' ', '') for x in sc.star]  # Put name lower and remove all spaces
+    newname = list(map(str.strip, newname))  # Remove all newline or tab characters
     sc['nameNew'] = newname
 
     # Prepare the exoplanetEU data
-    print 'Downloading the data from exoplanetEU...'
+    print('Downloading the data from exoplanetEU...')
     eu = pyasl.ExoplanetEU()
     eu = eu.getAllData()
     eu = pd.DataFrame(eu)  # Convert the structure to a DataFrame
 
-    newstname = map(lambda x: x.lower().replace(' ', ''), eu.stName)  # Put name lower and remove all spaces
-    newstname = map(str.strip, newstname)  # Remove all newline or tab characters
+    newstname = [x.lower().replace(' ', '') for x in eu.stName]  # Put name lower and remove all spaces
+    newstname = list(map(str.strip, newstname))  # Remove all newline or tab characters
     eu['stNameNew'] = newstname
 
     # Merge the two based on the stellar name
-    print 1
+    print(1)
     df = pd.merge(left=sc, right=eu, left_on='nameNew', right_on='stNameNew')
-    print 2
+    print(2)
     df.rename(columns={'ra_x': 'ra', 'dec_x': 'dec'}, inplace=True)
 
     # Calculate radius and luminosity
     rr = ['radius', 'radiuserr', 'teq0']
     if (args.x in rr) or (args.y in rr) or (args.z in rr):
-        params = zip(df.teff, df.erteff, df.logg, df.erlogg, df.metal, df.ermetal)
-        print 3
+        params = list(zip(df.teff, df.erteff, df.logg, df.erlogg, df.metal, df.ermetal))
+        print(3)
         r = [radTorres(t, et, l, el, f, ef) for t, et, l, el, f, ef in params]
         # Insert the radius, and luminosity in the table
-        print 4
+        print(4)
         df['radius'] = pd.Series(np.asarray(r)[:, 0])
         df['radiuserr'] = pd.Series(np.asarray(r)[:, 1])
         # Compute Teq0:
@@ -210,8 +210,8 @@ if __name__ == '__main__':
                 try:
                     _ = df[key]
                 except KeyError:
-                    print 'Invalid name: %s' % key
+                    print('Invalid name: %s' % key)
             raise SystemExit()
 
         dfout.to_csv('exoplanets.csv', sep='\t', index=False, na_rep='...')
-        print 'Saved result in exoplanet.csv'
+        print('Saved result in exoplanet.csv')

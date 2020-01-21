@@ -23,7 +23,7 @@ def logg(M, R):
 
 def main():
     args = _parse()
-    print('logg: %.2f' % logg(args.M, args.R))
+    print(('logg: %.2f' % logg(args.M, args.R)))
 
 
 if __name__ == '__main__':

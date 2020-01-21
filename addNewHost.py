@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 
 # My imports
 import numpy as np
@@ -60,10 +60,10 @@ def torres(name, teff=False, logg=False, feh=False):
 def variable_assignment(digits):
     try:
         if digits>0:
-            x = '%.2f' % round(input('> '), digits)
+            x = '%.2f' % round(eval(input('> ')), digits)
         else:
-            x = '%d' % round(input('> '), digits)
-    except SyntaxError, e:
+            x = '%d' % round(eval(input('> ')), digits)
+    except SyntaxError as e:
         x = 'NULL'
     return x
 
@@ -87,15 +87,15 @@ if __name__ == '__main__':
         exo = exo_all[exo_all.star_name == star]
         next = True
 
-        print ''
-        print 'Star: ' + colored.green(star)
+        print('')
+        print('Star: ' + colored.green(star))
 
         try:
             name = exo.star_name.values[0]
-        except IndexError, e:
-            print ''
+        except IndexError as e:
+            print('')
             puts(colored.red(star) + ' not found. Star added in the file manual.list.')
-            print ''
+            print('')
             manual = open('manual.list', "a")
             manual.write(star+'\n')
             manual.close()
@@ -109,12 +109,12 @@ if __name__ == '__main__':
                     for j in stars[i+1:]:
                         names.write(j)
             names.close()
-            print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+            print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
 
         # if the star is found in the exoplanet.eu
         if next:
-            print ''
-            var = raw_input('Continue? [Y/N]: ')
+            print('')
+            var = input('Continue? [Y/N]: ')
 
             if var.upper().strip()=='Y':
 
@@ -215,16 +215,16 @@ if __name__ == '__main__':
 
                 # Author and link to ADS
                 puts('Who is the '+colored.yellow('author?'))
-                author = raw_input('> ').strip()
+                author = input('> ').strip()
                 if author == '':
                     author = empty                
                 puts('Link to article ('+colored.yellow('ADS')+')')
-                link = raw_input('> ').strip()
+                link = input('> ').strip()
                 if link == '':
                     link = empty
                 # Source flag
                 puts(colored.yellow('Source flag'))
-                source = raw_input('(0/1) > ')
+                source = input('(0/1) > ')
                 if source == '':
                     source = '0'
 
@@ -252,7 +252,7 @@ if __name__ == '__main__':
                         if type(result['FLUX_ERROR_V'][indr])!=np.ma.core.MaskedConstant:    
                             Verr=round(float(result['FLUX_ERROR_V'][indr]), 2)
                         else:
-                            print '\nV magnitude = '+str(V)
+                            print('\nV magnitude = '+str(V))
                             puts('The error on ' + colored.yellow('V magnitude'))
                             Verr = variable_assignment(2)
                             if Verr == '':
@@ -265,7 +265,7 @@ if __name__ == '__main__':
                             V = variable_assignment(2)
                             if V == '':
                                 V = 'NULL'
-                        print '\nV magnitude = '+str(V)
+                        print('\nV magnitude = '+str(V))
                         puts('The error on ' + colored.yellow('V magnitude'))
                         Verr = variable_assignment(2)
                         if Verr == '':
@@ -295,7 +295,7 @@ if __name__ == '__main__':
                             Av=0
                             Averr=0
                         try:    
-                            p,perr = map(lambda x: round(x,2), parallax(Teff,Tefferr, float(logg),float(loggerr), V,Verr, M,Merr,Av,Averr))
+                            p,perr = [round(x,2) for x in parallax(Teff,Tefferr, float(logg),float(loggerr), V,Verr, M,Merr,Av,Averr)]
                             pflag = 'Spec'                             
                         except:
                             p = 'NULL'
@@ -308,7 +308,7 @@ if __name__ == '__main__':
                     else:                    
                         puts('Any '+colored.yellow('comments'))
                         puts('E.g. if we have a M dwarf...')
-                        comment = raw_input('> ')
+                        comment = input('> ')
                         if comment == '':
                             comment = 'NULL'   
 
@@ -316,7 +316,7 @@ if __name__ == '__main__':
 
                     # The HD number
                     puts('The '+colored.yellow('HD number'))
-                    HD = raw_input('> ')
+                    HD = input('> ')
                     if HD == '':
                         HD = 'NULL' 
                    
@@ -326,7 +326,7 @@ if __name__ == '__main__':
                     else:    
                         puts('The ' + colored.yellow('V magnitude'))
                         V = variable_assignment(2)
-                    print '\nV magnitude = '+str(V)
+                    print('\nV magnitude = '+str(V))
                     puts('The error on ' + colored.yellow('V magnitude'))
                     Verr = variable_assignment(2)
 
@@ -347,7 +347,7 @@ if __name__ == '__main__':
                             Av=0
                             Averr=0
                         try:
-                            p,perr = map(lambda x: round(x,2), parallax(Teff,Tefferr, logg,loggerr, V,Verr, M,Merr,Av,Averr))
+                            p,perr = [round(x,2) for x in parallax(Teff,Tefferr, logg,loggerr, V,Verr, M,Merr,Av,Averr)]
                             pflag = 'Spec'                             
                             # print p,perr
                         except:
@@ -358,7 +358,7 @@ if __name__ == '__main__':
                     # Comments
                     puts('Any '+colored.yellow('comments'))
                     puts('E.g. if we have a M dwarf...')
-                    comment = raw_input('> ')
+                    comment = input('> ')
                     if comment == '':
                         comment = 'NULL'                                                      
 
@@ -367,7 +367,7 @@ if __name__ == '__main__':
 
                 params = [name, HD, RA, DEC, V, Verr, p, perr, pflag, Teff, Tefferr,logg, loggerr, 'NULL', 'NULL', vt, vterr, FeH, Ferr, M, Merr,
                           author, link, source, update, comment]
-                params = map(str, params)
+                params = list(map(str, params))
 
                 # New host information
                 with open(output, 'a') as f:
@@ -383,9 +383,9 @@ if __name__ == '__main__':
                         for j in stars[i+1:]:
                             names.write(j)
                 names.close()
-                print ''
-                print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+                print('')
+                print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
 
             else:
-                print 'Bye...'
+                print('Bye...')
                 break

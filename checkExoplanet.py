@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-# -*- coding: utf8 -*-
+# -*- encoding: utf-8 -*-
 
 # My imports
 import os
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import pandas as pd
 import numpy as np
 import time
@@ -24,20 +24,27 @@ def writeFile(fname, data):
 
 class Update:
     """Check for updates to SWEET-Cat comparing with exoplanet.eu"""
-    def __init__(self, controversial, download=False):
+    def __init__(self, controversial, download=False, nasa=False):
         self.controversial = controversial
         self.download = download
 
         # if self.controversial:
         #     self.fname = 'exo_cont.csv'
         # else:
-        self.fname = 'exo.csv'
+        if nasa:
+            self.fname = 'nasaexo.csv'
+        else:
+            self.fname = 'exo.csv'
 
         self.blacklist = []
         # Kapteyn's can't be added with the ' in the website
 
         self.readSC()
-        self.downloadExoplanet()
+
+        if nasa:
+            self.downloadNasaExoplanet()
+        else:
+            self.downloadExoplanet()
 
     def downloadExoplanet(self):
         """
@@ -46,16 +53,62 @@ class Update:
         Return a pandas DataFrame sorted in 'update'.
         """
         if self.download:
-            response = urllib2.urlopen("http://exoplanet.eu/catalog/votable")
+            response = urllib.request.urlopen("http://exoplanet.eu/catalog/votable")
             table = response.read()
-            with open('exo.xml', 'w') as f:
+            with open('exo.xml', 'wb') as f:
                 f.write(table)
             self.xml2csv()
         df = pd.read_csv(self.fname)
         df = df[(df.detection_type == 'Radial Velocity') | (df.detection_type == 'Primary Transit') | (df.detection_type == 'Astrometry')]
         self.exoplanet = df
-        names=map(lambda x: self.remove_planet(x),self.exoplanet['name'])
-        self.exo_names = map(lambda x: x.strip(), names)
+        names=[self.remove_planet(x) for x in self.exoplanet['name']]
+        self.exo_names = [x.strip() for x in names]
+
+    def downloadNasaExoplanet(self):
+        """
+        Download the table from NASA exoplanet archive
+        and save it to a file (nasaexo.csv).
+
+        Return a pandas DataFrame sorted in 'update'.
+        """
+
+        urlRoot = "http://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI?"
+        table = "&table=exoplanets"     # table of confirmed exoplanets
+        select = "&select="             # which columns to select
+        order = "&order=rowupdate"      # sort the table by date of last update
+        tableFormat = "&format=csv"     # format of the table
+
+        # Names of the stellar columns
+        starId = 'pl_hostname,hd_name,ra,dec,ra_str,dec_str,'
+        # keplerMag = 'st_optband,st_optmag,st_optmagerr,'
+        vMag = 'st_vj,st_vjerr,'
+        parallax = 'st_plx,st_plxerr1,st_plxerr2,'
+        teff = 'st_teff,st_tefferr1,st_tefferr2,'
+        logg = 'st_logg,st_loggerr1,st_loggerr2,'
+        FeH = 'st_metfe,st_metfeerr1,st_metfeerr2,'
+        mass = 'st_mass,st_masserr1,st_masserr2,'
+        spt = 'st_spstr'
+
+        # Chosen SweetCat columns
+        sweetCatColumns = starId + vMag + parallax + teff + logg + FeH + mass + spt
+
+        # Full url for the query
+        nasa_url = urlRoot + table + select + sweetCatColumns + order + tableFormat
+
+        # Download the data
+        response = urllib.request.urlopen(nasa_url)
+        table = response.read()
+
+        # Write the NASA exoplanet archive
+        with open('nasaexo.csv', 'wb') as f:
+            f.write(table)
+
+        # Load the NASA archive
+        df = pd.read_csv(self.fname)
+        self.exoplanet = df
+
+        # List of names of the stars
+        self.exo_names = [x.strip() for x in self.exoplanet['pl_hostname']]
 
     def xml2csv(self):
         """Convert the saved xml file to csv and read with pandas"""
@@ -91,9 +144,9 @@ class Update:
                   'n1', 'n2', 'vt', 'vterr', 'feh', 'feherr', 'M', 'Merr',
                   'author', 'link', 'source', 'update', 'comment', 'n3']
         SC = pd.read_csv('WEBSITE_online.rdb', delimiter='\t', names=names_)
-        self.sc_names = map(lambda x: x.lower().replace(' ', '').replace('-', ''), SC.name)
-        self.sc_names = map(str.strip, self.sc_names)
-        self.sc_names_orig = map(lambda x: x.strip(), SC.name)
+        self.sc_names = [x.lower().replace(' ', '').replace('-', '') for x in SC.name]
+        self.sc_names = list(map(str.strip, self.sc_names))
+        self.sc_names_orig = [x.strip() for x in SC.name]
         self.coordinates = SC.loc[:, ['ra', 'dec']]
 
     def _sccoordinates(self, idx):
@@ -123,7 +176,7 @@ class Update:
 
     def update(self):
         # We have this already, but without the ' in the name.
-        print '\n    Matching data base...'
+        print('\n    Matching data base...')
 
         NewStars = []
         coordExo=coord.SkyCoord(ra=self.exoplanet['ra'].values, dec=self.exoplanet['dec'].values,unit=(u.deg,u.deg),frame='icrs')
@@ -206,7 +259,7 @@ class Update:
         Nstars = len(NewStars)
         if Nstars:
             puts(colored.green('    '+str(Nstars) + " exoplanet has to be removed!"))
-            print '\n    '.join(NewStars)
+            print('\n    '.join(NewStars))
         else:
             puts(colored.clean('    No planet to remove.'))
             if updated:        
@@ -217,5 +270,5 @@ class Update:
 if __name__ == '__main__':
     with open('starnotfoundinsimbad.list', 'a') as f:
         f.write(str(time.strftime("%d-%m-%Y"))+'\n')
-    new = Update(controversial=False, download=False)
-    new.update()
+    new = Update(controversial=False, download=True, nasa=True)
+    # new.update()
