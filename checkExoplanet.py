@@ -27,6 +27,7 @@ class Update:
     def __init__(self, controversial, download=False, nasa=False):
         self.controversial = controversial
         self.download = download
+        self.nasa = nasa
 
         # if self.controversial:
         #     self.fname = 'exo_cont.csv'
@@ -39,9 +40,11 @@ class Update:
         self.blacklist = []
         # Kapteyn's can't be added with the ' in the website
 
+        # Loading the SweetCat database
         self.readSC()
 
-        if nasa:
+        # Loading the exoplanet database
+        if self.nasa:
             self.downloadNasaExoplanet()
         else:
             self.downloadExoplanet()
@@ -78,8 +81,9 @@ class Update:
         order = "&order=rowupdate"      # sort the table by date of last update
         tableFormat = "&format=csv"     # format of the table
 
-        # Names of the stellar columns
+        # Names of Sweet-Cat stellar columns
         starId = 'pl_hostname,hd_name,ra,dec,ra_str,dec_str,'
+        detect = 'pl_name,pl_discmethod,'
         # keplerMag = 'st_optband,st_optmag,st_optmagerr,'
         vMag = 'st_vj,st_vjerr,'
         parallax = 'st_plx,st_plxerr1,st_plxerr2,'
@@ -89,8 +93,8 @@ class Update:
         mass = 'st_mass,st_masserr1,st_masserr2,'
         spt = 'st_spstr'
 
-        # Chosen SweetCat columns
-        sweetCatColumns = starId + vMag + parallax + teff + logg + FeH + mass + spt
+        # Choose SweetCat columns
+        sweetCatColumns = starId + detect + vMag + parallax + teff + logg + FeH + mass + spt
 
         # Full url for the query
         nasa_url = urlRoot + table + select + sweetCatColumns + order + tableFormat
@@ -105,6 +109,8 @@ class Update:
 
         # Load the NASA archive
         df = pd.read_csv(self.fname)
+        # Select exoplanet detected with given methods
+        df = df[(df.pl_discmethod == 'Radial Velocity') | (df.pl_discmethod == 'Transit') | (df.pl_discmethod == 'Astrometry')]
         self.exoplanet = df
 
         # List of names of the stars
@@ -179,26 +185,34 @@ class Update:
         print('\n    Matching data base...')
 
         NewStars = []
-        coordExo=coord.SkyCoord(ra=self.exoplanet['ra'].values, dec=self.exoplanet['dec'].values,unit=(u.deg,u.deg),frame='icrs')
-        coordSC=coord.SkyCoord(ra=self.coordinates['ra'].values, dec=self.coordinates['dec'].values,unit=(u.hourangle,u.deg),frame='icrs')
+        coordExo = coord.SkyCoord(ra=self.exoplanet['ra'].values,
+                                  dec=self.exoplanet['dec'].values,
+                                  unit=(u.deg, u.deg),
+                                  frame='icrs')
+        coordSC = coord.SkyCoord(ra=self.coordinates['ra'].values,
+                                 dec=self.coordinates['dec'].values,
+                                 unit=(u.hourangle, u.deg),
+                                 frame='icrs')
 
         for i, exo_name in enumerate(self.exo_names):
-            new = exo_name 
-            starName=self.exoplanet['star_name'].values[i]
-            tmp = new.lower().replace(' ', '').replace('-', '') 
+            starName = exo_name
+            # starName = self.exoplanet['star_name'].values[i]
+
+            # Clean star name
+            tmp = starName.lower().replace(' ', '').replace('-', '')
 
             sep = coordExo[i].separation(coordSC).arcsecond
-            ind=np.where(sep<5.)[0]
+            ind = np.where(sep < 5.)[0]
 
-            if len(ind)==0:
+            if len(ind) == 0:
                 try:
                     # it didn't find by position but it finds by name
-                    position=self.sc_names.index(tmp)
+                    position = self.sc_names.index(tmp)
                 except:
-                    position=-1
+                    position = -1
                     # it didn't find by position and neither by name
                     if (tmp not in self.blacklist):
-                        NewStars.append(new)
+                        NewStars.append(starName)
 
                 #  REMOVE THE COMMENTS TO CHECK PROBLEMS IN POSITION
 #                 if position>=0:
@@ -227,7 +241,7 @@ class Update:
             #     position=ind[0]
             #     if (tmp not in self.sc_names):
             #         print new, ': has a different name in Sweet-Cat (',self.sc_names[position],')'
-                        
+
         NewStars = sorted(list(set(NewStars)))
         Nstars = len(NewStars)
 
