@@ -81,24 +81,36 @@ if __name__ == '__main__':
               'star_teff', 'star_teff_error_min', 'star_teff_error_max']
 
     # Read data from NASA exoplanet archive
-    # fields = ['pl_hostname', 'hd_name', 'ra', 'dec', 'ra_str', 'dec_str',
-    #           'st_vj', 'st_vjerr',
-    #           'st_metfe', 'st_metfeerr1', 'st_metfeerr2',
-    #           'st_teff', 'st_tefferr1', 'st_tefferr2',
-    #           'st_plx', 'st_plxerr1', 'st_plxerr2',
-    #           'st_logg', 'st_loggerr1', 'st_loggerr2',
-    #           'st_mass', 'st_masserr1', 'st_masserr2',
-    #           'st_spstr']
+    fields_nasa = ['pl_hostname', 'hd_name', 'ra', 'dec', 'ra_str', 'dec_str',
+                   'st_vj', 'st_vjerr',
+                   'st_metfe', 'st_metfeerr1', 'st_metfeerr2',
+                   'st_teff', 'st_tefferr1', 'st_tefferr2',
+                   'st_plx', 'st_plxerr1', 'st_plxerr2',
+                   'st_logg', 'st_loggerr1', 'st_loggerr2',
+                   'st_mass', 'st_masserr1', 'st_masserr2',
+                   'st_spstr']
 
-    nasa = False
+    nasa = True
     if nasa:
+        # Loading NASA exoplanet archive
         exo_all = pd.read_csv('nasaexo.csv',
-                              skipinitialspace=True, usecols=fields)
+                              skipinitialspace=True, usecols=fields_nasa)
+        # Changing some column names to match exoplanet.EU
+        exo_all = exo_all.rename(columns={"pl_hostname": "star_name",
+                                          "st_vj": "mag_v", "st_vjerr": "mag_v_err",
+                                          "st_teff": "star_teff",
+                                          "st_tefferr1": "star_teff_error_max",
+                                          "st_tefferr2": "star_teff_error_min",
+                                          "st_metfe": "star_metallicity",
+                                          "st_metfeerr1": "star_metallicity_error_max",
+                                          "st_metfeerr2": "star_metallicity_error_min"})
     else:
+        # Laoding exoplanet.EU
         exo_all = pd.read_csv('exo.csv', skipinitialspace=True, usecols=fields)
 
     # Remove trailing whitespaces
     exo_all.star_name = exo_all.star_name.str.strip()
+
     output = 'WEBSITE_online_NasaEu_ADD.rdb'
 
     for i, star in enumerate(stars):
@@ -131,15 +143,17 @@ if __name__ == '__main__':
             print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
 
         # if the star is found in the exoplanet.eu
+        # or if found in NASA exoplanet archive
         if next:
             print('')
             var = input('Continue? [Y/N]: ')
 
-            if var.upper().strip()=='Y':
+            if var.upper().strip() == 'Y':
 
-                # Get RA and dec
+                # Get RA and dec (can be passed for NASA exoplanets)
                 ra, dec = float(exo.ra.values[0]), float(exo.dec.values[0])
-                c = coord.SkyCoord(ra, dec, unit=(u.degree, u.degree), frame='icrs')
+                c = coord.SkyCoord(ra, dec, unit=(u.degree, u.degree),
+                                   frame='icrs')
                 RA = list(c.ra.hms)
                 RA[0] = str(int(RA[0])).zfill(2)
                 RA[1] = str(int(RA[1])).zfill(2)
@@ -157,27 +171,35 @@ if __name__ == '__main__':
                 if len(DEC[2]) == 4:
                     DEC[2] += '0'
                 DEC = "{0} {1} {2}".format(*DEC)
-                # search in Simbad the parallax, Vmag and spectral type
-                customSimbad = Simbad()
-#                customSimbad.add_votable_fields('plx','plx_error','flux(V)','flux_error(V)','sptype','otype','ids','dist')
-                customSimbad.add_votable_fields('plx','plx_error','flux(V)','flux_error(V)','sptype','otype','ids')
-                result = customSimbad.query_region(coord.SkyCoord(ra=c.ra, dec=c.dec,frame='icrs'),radius='15s')
 
-                empty='NULL'
+                # Search in Simbad the parallax, Vmag and spectral type
+                customSimbad = Simbad()
+                # customSimbad.add_votable_fields('plx','plx_error','flux(V)','flux_error(V)','sptype','otype','ids','dist')
+                customSimbad.add_votable_fields('plx', 'plx_error', 'flux(V)',
+                                                'flux_error(V)', 'sptype',
+                                                'otype', 'ids')
+                result = customSimbad.query_region(coord.SkyCoord(ra=c.ra,
+                                                                  dec=c.dec,
+                                                                  frame='icrs'),
+                                                   radius='15s')
+
+                empty = 'NULL'
                                 
                 # Here comes the user interface part...
                 puts(colored.black('\nStandard parameters\n'))
 
-                # The metallicity
+                # The metallicity error
                 if ~np.isnan(exo.star_metallicity_error_min.values[0]) and ~np.isnan(exo.star_metallicity_error_max.values[0]):
-                    errFeH_exo=(exo.star_metallicity_error_min.values[0]+exo.star_metallicity_error_max.values[0])/2
+                    errFeH_exo = (abs(exo.star_metallicity_error_min.values[0]) +
+                                  abs(exo.star_metallicity_error_max.values[0])) / 2.0
                 elif ~np.isnan(exo.star_metallicity_error_min.values[0]):
-                    errFeH_exo=exo.star_metallicity_error_min.values[0]
+                    errFeH_exo = abs(exo.star_metallicity_error_min.values[0])
                 elif ~np.isnan(exo.star_metallicity_error_max.values[0]):
-                    errFeH_exo=exo.star_metallicity_error_max.values[0]
+                    errFeH_exo = abs(exo.star_metallicity_error_max.values[0])
                 else:
-                    errFeH_exo=np.nan 
-                
+                    errFeH_exo = np.nan
+
+                # The metallicity
                 FeH_exo = exo.star_metallicity.values[0]
                 if np.isnan(FeH_exo):
                     puts('The ' + colored.yellow('[Fe/H]'))
@@ -190,17 +212,20 @@ if __name__ == '__main__':
                         puts('The error on ' + colored.yellow('[Fe/H]'))
                         Ferr = variable_assignment(2)
                     else:
-                        Ferr=round(errFeH_exo, 2)
+                        Ferr = round(errFeH_exo, 2)
                         
-                # The effective temperature
+                # The effective temperature error
                 if ~np.isnan(exo.star_teff_error_min.values[0]) and ~np.isnan(exo.star_teff_error_max.values[0]):
-                    errTeff_exo=(exo.star_teff_error_min.values[0]+exo.star_teff_error_max.values[0])/2
+                    errTeff_exo = (abs(exo.star_teff_error_min.values[0]) +
+                                   abs(exo.star_teff_error_max.values[0])) / 2.0
                 elif ~np.isnan(exo.star_teff_error_min.values[0]):
-                    errTeff_exo=exo.star_teff_error_min.values[0]
+                    errTeff_exo = abs(exo.star_teff_error_min.values[0])
                 elif ~np.isnan(exo.star_teff_error_max.values[0]):
-                    errTeff_exo=exo.star_teff_error_max.values[0]
+                    errTeff_exo = abs(exo.star_teff_error_max.values[0])
                 else:
-                    errTeff_exo=np.nan 
+                    errTeff_exo = np.nan
+
+                # The effective temperature
                 Teff_exo = exo.star_teff.values[0]
                 if np.isnan(Teff_exo):
                     puts('The ' + colored.yellow('Teff'))
@@ -211,7 +236,7 @@ if __name__ == '__main__':
                     # the Teff is not float
                     Teff = int(Teff_exo)
                     if ~np.isnan(errTeff_exo):
-                        Tefferr =int(errTeff_exo)
+                        Tefferr = int(errTeff_exo)
                     else:
                         puts('The error on ' + colored.yellow('Teff'))
                         Tefferr = variable_assignment(0)
@@ -224,7 +249,8 @@ if __name__ == '__main__':
 
                 # The mass
                 puts(colored.magenta('Calculating the mass...'))
-                M, Merr = torres(name, [Teff, Tefferr], [logg, loggerr], feh=[FeH, Ferr])
+                M, Merr = torres(name, [Teff, Tefferr],
+                                 [logg, loggerr], feh=[FeH, Ferr])
 
                 # The microturbulence number
                 puts('The '+colored.yellow('microturbulence'))
@@ -236,7 +262,7 @@ if __name__ == '__main__':
                 puts('Who is the '+colored.yellow('author?'))
                 author = input('> ').strip()
                 if author == '':
-                    author = empty                
+                    author = empty
                 puts('Link to article ('+colored.yellow('ADS')+')')
                 link = input('> ').strip()
                 if link == '':
@@ -247,17 +273,20 @@ if __name__ == '__main__':
                 if source == '':
                     source = '0'
 
-                V_exo=exo.mag_v.values[0]
+                V_exo = exo.mag_v.values[0]
 
                 try:
-                    # select the star and not the planet, they have the same coordinates
-                    if len(result)>1:
-                        indr=np.where((result['OTYPE']!='Planet')&(result['OTYPE']!='Planet?')&(result['OTYPE'][1]!='brownD*'))[0][0]
+                    # select the star and not the planet,
+                    # they have the same coordinates
+                    if len(result) > 1:
+                        indr = np.where((result['OTYPE'] != 'Planet') &
+                                        (result['OTYPE'] != 'Planet?') &
+                                        (result['OTYPE'][1] != 'brownD*'))[0][0]
                     else:
-                        indr=0    
+                        indr = 0
 
-                    RA=str(result['RA'][indr])[:11]
-                    DEC=str(result['DEC'][indr])[:12]
+                    RA = str(result['RA'][indr])[:11]
+                    DEC = str(result['DEC'][indr])[:12]
 
                     # The HD number
                     HD=empty
@@ -291,40 +320,49 @@ if __name__ == '__main__':
                             Verr = 'NULL'
 
                     # The parallax
-                    plx,eplx=GAIAplx(RA, DEC)
-                    if plx!='NULL':
+                    plx, eplx = GAIAplx(RA, DEC)
+                    if plx != 'NULL':
                         p = plx
                         perr = eplx
-                        pflag = 'GAIADR2' 
-                    elif type(result['PLX_VALUE'][indr])!=np.ma.core.MaskedConstant:
-                        p=round(float(result['PLX_VALUE'][indr]),2)
-                        if type(result['PLX_VALUE'][indr])!=np.ma.core.MaskedConstant:
-                            perr=round(float(result['PLX_ERROR'][indr]),2)
+                        pflag = 'GAIADR2'
+                    elif type(result['PLX_VALUE'][indr]) != np.ma.core.MaskedConstant:
+                        p = round(float(result['PLX_VALUE'][indr]), 2)
+                        if type(result['PLX_VALUE'][indr]) != np.ma.core.MaskedConstant:
+                            perr = round(float(result['PLX_ERROR'][indr]), 2)
                         else:
-                            perr=empty    
-                        pflag='Simbad'
+                            perr = empty
+                        pflag = 'Simbad'
                     else:
                         try:
-                            pos=coord.SkyCoord(ra=ra, dec=dec,unit=(u.hourangle,u.deg),frame='icrs')
+                            pos = coord.SkyCoord(ra=ra, dec=dec,
+                                                 unit=(u.hourangle,u.deg),
+                                                 frame='icrs')
                             #AvSF = Schlafly & Finkbeiner 2011 (ApJ 737, 103)
-                            tableAv = IrsaDust.get_query_table(pos, radius='02d', section='ebv', timeout=60)
-                            Av=tableAv['ext SandF mean'].data[0]
-                            Averr=tableAv['ext SandF std'].data[0]
+                            tableAv = IrsaDust.get_query_table(pos,
+                                                               radius='02d',
+                                                               section='ebv',
+                                                               timeout=60)
+                            Av = tableAv['ext SandF mean'].data[0]
+                            Averr = tableAv['ext SandF std'].data[0]
                         except:
-                            Av=0
-                            Averr=0
+                            Av = 0
+                            Averr = 0
                         try:    
-                            p,perr = [round(x,2) for x in parallax(Teff,Tefferr, float(logg),float(loggerr), V,Verr, M,Merr,Av,Averr)]
-                            pflag = 'Spec'                             
+                            p, perr = [round(x, 2) for x in parallax(Teff,
+                                                                     Tefferr,
+                                                                     float(logg),
+                                                                     float(loggerr),
+                                                                     V, Verr, M, Merr, Av, Averr)]
+                            pflag = 'Spec'
                         except:
                             p = 'NULL'
                             perr = 'NULL'
-                            pflag = 'NULL' 
+                            pflag = 'NULL'
 
                     # Comments
-                    if result['SP_TYPE'][indr]!='' and result['SP_TYPE'][indr][0]=='M':
+                    if result['SP_TYPE'][indr] != '' and result['SP_TYPE'][indr][0] == 'M':
                         comment = result['SP_TYPE'][indr]
-                    else:                    
+                    else:
                         puts('Any '+colored.yellow('comments'))
                         puts('E.g. if we have a M dwarf...')
                         comment = input('> ')
@@ -332,7 +370,7 @@ if __name__ == '__main__':
                             comment = 'NULL'
 
                     # Exoplanet database
-                    puts('From which exoplanet database:' +colored.yellow('EU or NASA or EU,NASA'))
+                    puts('From which exoplanet database:' + colored.yellow('EU or NASA or EU,NASA'))
                     database = input('> ')
                     if database == '':
                         database = 'NULL'
@@ -343,8 +381,8 @@ if __name__ == '__main__':
                     puts('The '+colored.yellow('HD number'))
                     HD = input('> ')
                     if HD == '':
-                        HD = 'NULL' 
-                   
+                        HD = 'NULL'
+
                     # The V magnitude
                     if ~np.isnan(V_exo):
                         V = round(float(V_exo), 2)
@@ -356,29 +394,37 @@ if __name__ == '__main__':
                     Verr = variable_assignment(2)
 
                     # The parallax
-                    plx,eplx=GAIAplx(RA,DEC)
-                    if plx!='NULL':
+                    plx, eplx = GAIAplx(RA, DEC)
+                    if plx != 'NULL':
                         p = plx
                         perr = eplx
-                        pflag = 'GAIADR2' 
+                        pflag = 'GAIADR2'
                     else:
                         try:
-                            pos=coord.SkyCoord(ra=RA, dec=DEC,unit=(u.hourangle,u.deg),frame='icrs')
+                            pos = coord.SkyCoord(ra=RA, dec=DEC,
+                                                 unit=(u.hourangle, u.deg),
+                                                 frame='icrs')
                             #AvSF = Schlafly & Finkbeiner 2011 (ApJ 737, 103)
-                            tableAv = IrsaDust.get_query_table(pos, radius='02d', section='ebv', timeout=60)
-                            Av=tableAv['ext SandF mean'].data[0]
-                            Averr=tableAv['ext SandF std'].data[0]
+                            tableAv = IrsaDust.get_query_table(pos,
+                                                               radius='02d',
+                                                               section='ebv',
+                                                               timeout=60)
+                            Av = tableAv['ext SandF mean'].data[0]
+                            Averr = tableAv['ext SandF std'].data[0]
                         except:
-                            Av=0
-                            Averr=0
+                            Av = 0
+                            Averr = 0
                         try:
-                            p,perr = [round(x,2) for x in parallax(Teff,Tefferr, logg,loggerr, V,Verr, M,Merr,Av,Averr)]
-                            pflag = 'Spec'                             
+                            p, perr = [round(x, 2) for x in parallax(Teff,
+                                                                     Tefferr,
+                                                                     logg, loggerr,
+                                                                     V, Verr, M, Merr, Av, Averr)]
+                            pflag = 'Spec'
                             # print p,perr
                         except:
                             p = 'NULL'
                             perr = 'NULL'
-                            pflag = 'NULL' 
+                            pflag = 'NULL'
 
                     # Comments
                     puts('Any '+colored.yellow('comments'))
@@ -388,7 +434,7 @@ if __name__ == '__main__':
                         comment = 'NULL'
 
                     # Exoplanet database
-                    puts('From which exoplanet database:' +colored.yellow('EU or NASA or EU,NASA'))
+                    puts('From which exoplanet database: ' + colored.yellow('EU or NASA or EU,NASA'))
                     database = input('> ')
                     if database == '':
                         database = 'NULL'
@@ -396,7 +442,9 @@ if __name__ == '__main__':
                 # Last update
                 update = str(time.strftime("%Y-%m-%d"))
 
-                params = [name, HD, RA, DEC, V, Verr, p, perr, pflag, Teff, Tefferr,logg, loggerr, 'NULL', 'NULL', vt, vterr, FeH, Ferr, M, Merr,
+                params = [name, HD, RA, DEC, V, Verr, p, perr, pflag,
+                          Teff, Tefferr, logg, loggerr, 'NULL', 'NULL',
+                          vt, vterr, FeH, Ferr, M, Merr,
                           author, link, source, update, comment, database]
                 params = list(map(str, params))
 
@@ -408,7 +456,7 @@ if __name__ == '__main__':
                 # Update the list of new hosts
                 with open('names.txt', 'w') as names:
                     # if the last star was added so no star is updated
-                    if i+1==len(stars):
+                    if i+1 == len(stars):
                         names.write('')
                     else:
                         for j in stars[i+1:]:
