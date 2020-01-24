@@ -148,8 +148,13 @@ class Update:
         names_ = ['name', 'hd', 'ra', 'dec', 'V', 'Verr', 'p', 'perr',
                   'pflag', 'Teff', 'Tefferr', 'logg', 'logger',
                   'n1', 'n2', 'vt', 'vterr', 'feh', 'feherr', 'M', 'Merr',
-                  'author', 'link', 'source', 'update', 'comment', 'n3']
-        SC = pd.read_csv('WEBSITE_online.rdb', delimiter='\t', names=names_)
+                  'author', 'link', 'source', 'update', 'comment', 'database',
+                  'n3']
+        
+        # SC = pd.read_csv('WEBSITE_online.rdb', delimiter='\t', names=names_)
+        SC = pd.read_csv('website_nasa-eu_updated.rdb',
+                         delimiter='\t', names=names_)
+
         self.sc_names = [x.lower().replace(' ', '').replace('-', '') for x in SC.name]
         self.sc_names = list(map(str.strip, self.sc_names))
         self.sc_names_orig = [x.strip() for x in SC.name]
@@ -181,6 +186,16 @@ class Update:
         return RAsc, DEsc
 
     def update(self):
+        """
+        Check the difference the exoplanet database (EU or NASA)
+        and the SweetCat database
+        INPUTS: self = exoplanet database in pandas dataframe
+        OUTPUTS: names.txt = file with stars that are not in SweetCat but
+                             stars are in the exoplanet database (EU or NASA)
+        Prints the stars that are in SweetCat
+        and that are not in the exoplanet database (EU or NASA)
+        """
+
         # We have this already, but without the ' in the name.
         print('\n    Matching data base...')
 
@@ -208,11 +223,13 @@ class Update:
                 try:
                     # it didn't find by position but it finds by name
                     position = self.sc_names.index(tmp)
+
                 except:
                     position = -1
                     # it didn't find by position and neither by name
                     if (tmp not in self.blacklist):
                         NewStars.append(starName)
+
 
                 #  REMOVE THE COMMENTS TO CHECK PROBLEMS IN POSITION
 #                 if position>=0:
@@ -284,5 +301,5 @@ class Update:
 if __name__ == '__main__':
     with open('starnotfoundinsimbad.list', 'a') as f:
         f.write(str(time.strftime("%d-%m-%Y"))+'\n')
-    new = Update(controversial=False, download=True, nasa=True)
-    # new.update()
+    exo_database = Update(controversial=False, download=True, nasa=False)
+    exo_database.update()
