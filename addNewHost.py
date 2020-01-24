@@ -75,12 +75,31 @@ if __name__ == '__main__':
     var = 'Y'
 
     # Read the data from exoplanet.eu
-    fields = ['star_name', 'ra', 'dec', 'mag_v', 'star_metallicity', 'star_metallicity_error_min','star_metallicity_error_max','star_teff','star_teff_error_min','star_teff_error_max']
-    exo_all = pd.read_csv('exo.csv', skipinitialspace=True, usecols=fields)
+    fields = ['star_name', 'ra', 'dec', 'mag_v',
+              'star_metallicity', 'star_metallicity_error_min',
+              'star_metallicity_error_max',
+              'star_teff', 'star_teff_error_min', 'star_teff_error_max']
+
+    # Read data from NASA exoplanet archive
+    # fields = ['pl_hostname', 'hd_name', 'ra', 'dec', 'ra_str', 'dec_str',
+    #           'st_vj', 'st_vjerr',
+    #           'st_metfe', 'st_metfeerr1', 'st_metfeerr2',
+    #           'st_teff', 'st_tefferr1', 'st_tefferr2',
+    #           'st_plx', 'st_plxerr1', 'st_plxerr2',
+    #           'st_logg', 'st_loggerr1', 'st_loggerr2',
+    #           'st_mass', 'st_masserr1', 'st_masserr2',
+    #           'st_spstr']
+
+    nasa = False
+    if nasa:
+        exo_all = pd.read_csv('nasaexo.csv',
+                              skipinitialspace=True, usecols=fields)
+    else:
+        exo_all = pd.read_csv('exo.csv', skipinitialspace=True, usecols=fields)
 
     # Remove trailing whitespaces
     exo_all.star_name = exo_all.star_name.str.strip()
-    output = 'WEBSITE_online_ADD.rdb'
+    output = 'WEBSITE_online_NasaEu_ADD.rdb'
 
     for i, star in enumerate(stars):
         star = star.strip('\n')
@@ -310,7 +329,13 @@ if __name__ == '__main__':
                         puts('E.g. if we have a M dwarf...')
                         comment = input('> ')
                         if comment == '':
-                            comment = 'NULL'   
+                            comment = 'NULL'
+
+                    # Exoplanet database
+                    puts('From which exoplanet database:' +colored.yellow('EU or NASA or EU,NASA'))
+                    database = input('> ')
+                    if database == '':
+                        database = 'NULL'
 
                 except:
 
@@ -360,13 +385,19 @@ if __name__ == '__main__':
                     puts('E.g. if we have a M dwarf...')
                     comment = input('> ')
                     if comment == '':
-                        comment = 'NULL'                                                      
+                        comment = 'NULL'
+
+                    # Exoplanet database
+                    puts('From which exoplanet database:' +colored.yellow('EU or NASA or EU,NASA'))
+                    database = input('> ')
+                    if database == '':
+                        database = 'NULL'
 
                 # Last update
                 update = str(time.strftime("%Y-%m-%d"))
 
                 params = [name, HD, RA, DEC, V, Verr, p, perr, pflag, Teff, Tefferr,logg, loggerr, 'NULL', 'NULL', vt, vterr, FeH, Ferr, M, Merr,
-                          author, link, source, update, comment]
+                          author, link, source, update, comment, database]
                 params = list(map(str, params))
 
                 # New host information
