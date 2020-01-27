@@ -15,7 +15,8 @@ warnings.filterwarnings('ignore')
 from astroquery.irsa_dust import IrsaDust
 from astroquery.vizier import Vizier
 
-def GAIAplx(ra,de):
+
+def GAIAplx(ra, de):
     v = Vizier(columns=["*", "+_r"], catalog='I/345/gaia2')
     pos=coord.SkyCoord(ra=ra, dec=de,unit=(u.hourangle,u.deg),frame='icrs',obstime='J2000')
     result=v.query_region(pos, radius="10s", catalog='I/345/gaia2')
@@ -37,6 +38,7 @@ def GAIAplx(ra,de):
 
     return 'NULL','NULL'
 
+
 def torres(name, teff=False, logg=False, feh=False):
     """
     Calculates the mass and error from Torres. See source for more information
@@ -57,9 +59,10 @@ def torres(name, teff=False, logg=False, feh=False):
     puts(colored.green('Done'))
     return round(M, 2), round(Merr, 2)
 
+
 def variable_assignment(digits):
     try:
-        if digits>0:
+        if digits > 0:
             x = '%.2f' % round(eval(input('> ')), digits)
         else:
             x = '%d' % round(eval(input('> ')), digits)
@@ -97,7 +100,8 @@ if __name__ == '__main__':
                               skipinitialspace=True, usecols=fields_nasa)
         # Changing some column names to match exoplanet.EU
         exo_all = exo_all.rename(columns={"pl_hostname": "star_name",
-                                          "st_vj": "mag_v", "st_vjerr": "mag_v_err",
+                                          "st_vj": "mag_v",
+                                          "st_vjerr": "mag_v_err",
                                           "st_teff": "star_teff",
                                           "st_tefferr1": "star_teff_error_max",
                                           "st_tefferr2": "star_teff_error_min",

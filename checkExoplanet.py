@@ -3,6 +3,7 @@
 
 # My imports
 import os
+import time
 import urllib.request, urllib.error, urllib.parse
 import pandas as pd
 import numpy as np
@@ -28,6 +29,7 @@ class Update:
         self.controversial = controversial
         self.download = download
         self.nasa = nasa
+        self.fname_sc = 'website_nasa-eu_updated.rdb'
 
         # if self.controversial:
         #     self.fname = 'exo_cont.csv'
@@ -150,15 +152,15 @@ class Update:
                   'n1', 'n2', 'vt', 'vterr', 'feh', 'feherr', 'M', 'Merr',
                   'author', 'link', 'source', 'update', 'comment', 'database',
                   'n3']
-        
+
         # SC = pd.read_csv('WEBSITE_online.rdb', delimiter='\t', names=names_)
-        SC = pd.read_csv('website_nasa-eu_updated.rdb',
-                         delimiter='\t', names=names_)
+        SC = pd.read_csv(self.fname_sc, delimiter='\t', names=names_)
 
         self.sc_names = [x.lower().replace(' ', '').replace('-', '') for x in SC.name]
         self.sc_names = list(map(str.strip, self.sc_names))
         self.sc_names_orig = [x.strip() for x in SC.name]
         self.coordinates = SC.loc[:, ['ra', 'dec']]
+        self.SC = SC
 
     def _sccoordinates(self, idx):
         '''Transform the coordinates to degrees
@@ -198,6 +200,10 @@ class Update:
 
         # We have this already, but without the ' in the name.
         print('\n    Matching data base...')
+        if self.nasa:
+            print('   NASA exoplanet archive')
+        else:
+            print('   Extrasolar Planets Encyclopaedia')
 
         NewStars = []
         coordExo = coord.SkyCoord(ra=self.exoplanet['ra'].values,
@@ -211,6 +217,7 @@ class Update:
 
         for i, exo_name in enumerate(self.exo_names):
             starName = exo_name
+            print('\n', starName)
             # starName = self.exoplanet['star_name'].values[i]
 
             # Clean star name
@@ -219,10 +226,44 @@ class Update:
             sep = coordExo[i].separation(coordSC).arcsecond
             ind = np.where(sep < 5.)[0]
 
+            # Star is already in SWEET-Cat
+            # Check if the name of the database (EU and/or NASA)
+            # is written in the SWEET-CAT file
+            # if not the name of the database is added
+            if len(ind) != 0.:
+                ind_SC = ind[0]
+                print('Star found in SWEET-Cat by position')
+                if self.nasa:
+                    if 'NASA' in self.SC.loc[ind_SC].database:
+                        print('NASA is already written in sweetcat 1\n')
+                    else:
+                        self.SC.at[ind_SC, 'database'] = self.SC.at[ind_SC, 'database'] + ',NASA'
+                        print('wrote nasa')
+                else:
+                    if 'EU' in self.SC.loc[ind_SC].database:
+                        print('EU is already written in sweetcat 1\n')
+                    else:
+                        self.SC.at[ind_SC, 'database'] = self.SC.at[ind_SC, 'database'] + ',EU'
+                        print('wrote EU')
+
             if len(ind) == 0:
                 try:
                     # it didn't find by position but it finds by name
                     position = self.sc_names.index(tmp)
+                    print('Star found in SWEET-Cat by name')
+                    # Check the name of the database (EU and/or NASA)
+                    if self.nasa:
+                        if 'NASA' in self.SC.loc[position].database:
+                            print('NASA is already written in sweetcat 2\n')
+                        else:
+                            self.SC.at[position, 'database'] = self.SC.at[position, 'database'] + ',NASA'
+                            print('wrote nasa')
+                    else:
+                        if 'EU' in self.SC.loc[position].database:
+                            print('EU is already written in sweetcat 2\n')
+                        else:
+                            self.SC.at[position, 'database'] = self.SC.at[position, 'database'] + ',EU'
+                            print('wrote EU')
 
                 except:
                     position = -1
@@ -265,23 +306,23 @@ class Update:
         if Nstars:
             puts('    '+colored.green(str(Nstars) + " new exoplanet available!"))
             writeFile('names.txt', '\n'.join(NewStars))
-            updated=False
+            updated = False
         else:
             puts(colored.clean('    No new updates available.'))
-            updated=True
+            updated = True
 
-        # removing planets that are not in Exoplanet.eu anymore    
+        # Removing planets that are not in Exoplanet.eu anymore
         NewStars = []
 
         for i, scname in enumerate(self.sc_names_orig):
             sep = coordSC[i].separation(coordExo).arcsecond
-            ind=np.where(sep<5.)[0]
-            if len(ind)==0:
+            ind = np.where(sep < 5.)[0]
+            if len(ind) == 0:
                 try:
                     # it didn't find by position but it finds by name
-                    position=self.exo_names.index(scname)
+                    position = self.exo_names.index(scname)
                 except:
-                    position=-1
+                    position = -1
                     # it didn't find by position and neither by name
                     if (tmp not in self.blacklist):
                         NewStars.append(scname)
@@ -293,13 +334,25 @@ class Update:
             print('\n    '.join(NewStars))
         else:
             puts(colored.clean('    No planet to remove.'))
-            if updated:        
+            if updated:
                 puts(colored.clean('    SWEET-Cat is up to date'))
                 puts(colored.green('    Great job :)'))
+
+        # Date and time
+        timestr = time.strftime("%d-%m-%H:%M")
+        filename = os.path.splitext(self.fname_sc)[0] + '_' + timestr + '.rdb'
+
+        # Write new SWEET-Cat database
+        print('Writing the file: ', filename)
+        self.SC.to_csv(filename, sep='\t', index=False, header=False)
 
 
 if __name__ == '__main__':
     with open('starnotfoundinsimbad.list', 'a') as f:
         f.write(str(time.strftime("%d-%m-%Y"))+'\n')
-    exo_database = Update(controversial=False, download=True, nasa=False)
+
+    # Load SWEET-CAT and EU/NASA databases
+    # Check for new planet host stars
+    # Check and add the names of EU/NASA databases
+    exo_database = Update(controversial=False, download=True, nasa=True)
     exo_database.update()
