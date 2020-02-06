@@ -218,6 +218,8 @@ if __name__ == '__main__':
                     else:
                         Ferr = round(errFeH_exo, 2)
                         
+                print('Fe/H: ', FeH, '+-', Ferr)
+
                 # The effective temperature error
                 if ~np.isnan(exo.star_teff_error_min.values[0]) and ~np.isnan(exo.star_teff_error_max.values[0]):
                     errTeff_exo = (abs(exo.star_teff_error_min.values[0]) +
@@ -245,11 +247,43 @@ if __name__ == '__main__':
                         puts('The error on ' + colored.yellow('Teff'))
                         Tefferr = variable_assignment(0)
 
-                # The log g
-                puts('The ' + colored.yellow('logg'))
-                logg = variable_assignment(2)
-                puts('The error on ' + colored.yellow('logg'))
-                loggerr = variable_assignment(2)
+                print('Teff: ', Teff, '+-', Tefferr)
+
+                # NASA database has loggs
+                # The logg error and logg
+                if nasa:
+                    if ~np.isnan(exo.st_loggerr2.values[0]) and ~np.isnan(exo.st_loggerr1.values[0]):
+                        errlogg_exo = (abs(exo.st_loggerr2.values[0]) +
+                                      abs(exo.st_loggerr1.values[0])) / 2.0
+                    elif ~np.isnan(exo.st_loggerr2.values[0]):
+                        errlogg_exo = abs(exo.st_loggerr2.values[0])
+                    elif ~np.isnan(exo.st_loggerr1.values[0]):
+                        errlogg_exo = abs(exo.st_loggerr1.values[0])
+                    else:
+                        errlogg_exo = np.nan
+
+                    logg_exo = exo.st_logg.values[0]
+                    if np.isnan(logg_exo):
+                        puts('The ' + colored.yellow('logg'))
+                        logg = variable_assignment(0)
+                        puts('The error on ' + colored.yellow('logg'))
+                        loggerr = variable_assignment(0)
+                    else:
+                        # logg is a float
+                        logg = round(float(logg_exo), 2)
+                        if ~np.isnan(errlogg_exo):
+                            loggerr = round(errlogg_exo, 2)
+                        else:
+                            puts('The error on ' + colored.yellow('logg'))
+                            loggerr = variable_assignment(0)
+                else:
+                    # The log g and log g error for EU database
+                    puts('The ' + colored.yellow('logg'))
+                    logg = variable_assignment(2)
+                    puts('The error on ' + colored.yellow('logg'))
+                    loggerr = variable_assignment(2)
+
+                print('logg: ', logg, '+-', loggerr)
 
                 # The mass
                 puts(colored.magenta('Calculating the mass...'))
