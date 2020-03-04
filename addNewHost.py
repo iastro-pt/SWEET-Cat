@@ -71,6 +71,18 @@ def variable_assignment(digits):
     return x
 
 if __name__ == '__main__':
+
+    nasa_str = input('\nExoplanet from NASA database? [True/False]: ')
+    if nasa_str == 'True':
+        nasa = True
+        print('Adding exoplanets from the NASA database')
+    elif nasa_str == 'False':
+        nasa = False
+        print('Adding exoplanets from the EU database')
+    else:
+        print('Answer different from True or False\nBye...')
+        exit
+
     # stars = np.loadtxt('names.txt', dtype='S', delimiter='\t',usecols=(0,), )	"does not work when the file has only one line"
     with open('names.txt') as f:
         stars = f.readlines()
@@ -93,7 +105,6 @@ if __name__ == '__main__':
                    'st_mass', 'st_masserr1', 'st_masserr2',
                    'st_spstr']
 
-    nasa = True
     if nasa:
         # Loading NASA exoplanet archive
         exo_all = pd.read_csv('nasaexo.csv',
@@ -115,7 +126,7 @@ if __name__ == '__main__':
     # Remove trailing whitespaces
     exo_all.star_name = exo_all.star_name.str.strip()
 
-    output = 'WEBSITE_online_NasaEu_ADD.rdb'
+    output = 'WEBSITE_online_NasaEu_ADD_to_full_database.rdb'
 
     for i, star in enumerate(stars):
         star = star.strip('\n')
