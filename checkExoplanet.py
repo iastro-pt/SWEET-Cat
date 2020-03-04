@@ -29,7 +29,7 @@ class Update:
         self.controversial = controversial
         self.download = download
         self.nasa = nasa
-        self.fname_sc = 'website_nasa-eu_updated.rdb'
+        self.fname_sc = 'WEBSITE_online_EU-NASA_full_database.rdb'
 
         # if self.controversial:
         #     self.fname = 'exo_cont.csv'
@@ -39,7 +39,7 @@ class Update:
         else:
             self.fname = 'exo.csv'
 
-        self.blacklist = []
+        self.blacklist = ['HAT-P-69','HAT-P-70']
         # Kapteyn's can't be added with the ' in the website
 
         # Loading the SweetCat database
@@ -205,6 +205,9 @@ class Update:
         INPUTS: self = exoplanet database in pandas dataframe
         OUTPUTS: names.txt = file with stars that are not in SweetCat but
                              stars are in the exoplanet database (EU or NASA)
+                 fname_sc_day-month_hour:minute = new SWEET-Cat dabatase
+                                                  with updated database label
+
         Prints the stars that are in SweetCat
         and that are not in the exoplanet database (EU or NASA)
         """
@@ -247,12 +250,11 @@ class Update:
             ind = np.where(sep < 5.)[0]
 
             # Star is already in SWEET-Cat
-            # Check if the name of the database (EU and/or NASA)
-            # is written in the SWEET-CAT file
-            # if not the name of the database is added
             if len(ind) != 0.:
                 ind_SC = ind[0]
 
+                # Check if the name of the database (EU and/or NASA)
+                # is written in the SWEET-CAT file, if not it's added
                 if self.nasa:
                     if 'NASA' in self.SC.loc[ind_SC].database:
                         pass
@@ -409,11 +411,11 @@ class Update:
 
 
 if __name__ == '__main__':
+
     with open('starnotfoundinsimbad.list', 'a') as f:
         f.write(str(time.strftime("%d-%m-%Y"))+'\n')
 
     # Load SWEET-CAT and EU/NASA databases
-    # Check for new planet host stars
-    # Check and add the names of EU/NASA databases
-    exo_database = Update(controversial=False, download=False, nasa=False)
+    exo_database = Update(controversial=False, download=True, nasa=True)
+    # Check for new planet host stars and add the names of EU/NASA databases
     exo_database.update()
