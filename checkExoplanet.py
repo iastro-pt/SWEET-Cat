@@ -29,7 +29,7 @@ class Update:
         self.controversial = controversial
         self.download = download
         self.nasa = nasa
-        self.fname_sc = 'WEBSITE_online_EU-NASA_full_database.rdb'
+        self.fname_sc = 'WEBSITE_online_EU-NASA_full_database_clean.rdb'
 
         # if self.controversial:
         #     self.fname = 'exo_cont.csv'
@@ -405,6 +405,13 @@ class Update:
         timestr = time.strftime("%d-%m-%H:%M")
         filename = os.path.splitext(self.fname_sc)[0] + '_' + timestr + '.rdb'
 
+        # Convert Tefferr column to integers
+        self.SC['Tefferr'] = self.SC['Tefferr'].fillna('-111111')
+        self.SC['Tefferr'] = self.SC['Tefferr'].astype(int).replace(-111111,
+                                                                    'NULL')
+        # Replace NaN by NULL
+        self.SC.fillna(value='NULL', inplace=True)
+
         # Write new SWEET-Cat database
         print('\n    Writing the file: ', filename)
         self.SC.to_csv(filename, sep='\t', index=False, header=False)
@@ -416,6 +423,6 @@ if __name__ == '__main__':
         f.write(str(time.strftime("%d-%m-%Y"))+'\n')
 
     # Load SWEET-CAT and EU/NASA databases
-    exo_database = Update(controversial=False, download=True, nasa=True)
+    exo_database = Update(controversial=False, download=False, nasa=False)
     # Check for new planet host stars and add the names of EU/NASA databases
     exo_database.update()
