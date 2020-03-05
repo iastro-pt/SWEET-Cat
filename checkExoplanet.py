@@ -39,7 +39,8 @@ class Update:
         else:
             self.fname = 'exo.csv'
 
-        self.blacklist = ['HAT-P-69','HAT-P-70']
+        self.blacklist = ['hatp69', 'hatp70', 'denispj082303.1491201']
+        # HAT stars are A stars and denis is a L dwarf
         # Kapteyn's can't be added with the ' in the website
 
         # Loading the SweetCat database
@@ -423,6 +424,6 @@ if __name__ == '__main__':
         f.write(str(time.strftime("%d-%m-%Y"))+'\n')
 
     # Load SWEET-CAT and EU/NASA databases
-    exo_database = Update(controversial=False, download=False, nasa=False)
+    exo_database = Update(controversial=False, download=True, nasa=True)
     # Check for new planet host stars and add the names of EU/NASA databases
     exo_database.update()
