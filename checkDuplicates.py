@@ -79,6 +79,12 @@ if __name__ == '__main__':
     for idx in unique_duplicate:
         print(sc.SC.iloc[list(idx)][['name', 'hd', 'ra', 'dec']])
 
+    # Remove the -1.0 in microturbulence and its error
+    sc.SC[sc.SC['vt'] < 0.0][['name', 'hd', 'ra', 'dec','vt', 'vterr','author', 'link']]
+
+    # Change the value of a given cell
+    # sc.SC.at[9, 'vt'] = 1.44
+    # sc.SC.at[9, 'vterr'] = np.nan
 
     # Uncomment some of the following lines to remove duplicates
     # Indexes of the duplicates
@@ -95,12 +101,12 @@ if __name__ == '__main__':
 
     # # Replace NaN by NULL
     # new_sc.fillna(value='NULL', inplace=True)
-    # new_sc.to_csv('WEBSITE_online_EU-NASA_full_database_clean_minusKELT-22A.rdb',
+    # new_sc.to_csv('WEBSITE_online_EU-NASA_full_database_clean_09-03-2020.rdb',
     #               sep='\t', index=False, header=False)
 
-    # Select only the EU data
+    # # Select only the EU data
     # sc_EU = new_sc[new_sc['database'].str.contains('EU')]
-    # Drop the database column
+    # # Drop the database column
     # sc_like_old = sc_EU.drop(columns=['database'])
-    #sc_like_old.to_csv('WEBSITE_online_EU-updated_04-03-2020.rdb',
-    #                   sep='\t', index=False, header=False)
+    # sc_like_old.to_csv('WEBSITE_online_EU-updated_09-03-2020.rdb',
+    #                    sep='\t', index=False, header=False)
