@@ -80,7 +80,8 @@ if __name__ == '__main__':
         print(sc.SC.iloc[list(idx)][['name', 'hd', 'ra', 'dec']])
 
     # Remove the -1.0 in microturbulence and its error
-    sc.SC[sc.SC['vt'] < 0.0][['name', 'hd', 'ra', 'dec','vt', 'vterr','author', 'link']]
+    sc.SC[sc.SC['vt'] < 0.0][['name', 'hd', 'ra', 'dec',
+                              'vt', 'vterr', 'author', 'link']]
 
     # Change the value of a given cell
     # sc.SC.at[9, 'vt'] = 1.44
