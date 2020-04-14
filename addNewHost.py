@@ -126,7 +126,7 @@ if __name__ == '__main__':
     # Remove trailing whitespaces
     exo_all.star_name = exo_all.star_name.str.strip()
 
-    output = 'WEBSITE_online_NasaEu_ADD_to_full_database.rdb'
+    output = 'WEBSITE_online_NasaEu_to_ADD.rdb'
 
     for i, star in enumerate(stars):
         star = star.strip('\n')
