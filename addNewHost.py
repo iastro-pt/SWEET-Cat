@@ -125,11 +125,12 @@ if __name__ == '__main__':
 
     # Remove trailing whitespaces
     exo_all.star_name = exo_all.star_name.str.strip()
-
-    output = 'WEBSITE_online_NasaEu_to_ADD.rdb'
+    print(exo_all.star_name)
+    output = 'WEBSITE_online_EU-NASA_to_ADD.rdb'
 
     for i, star in enumerate(stars):
-        star = star.strip('\n')
+        star = star.strip('\n').replace('K0I', 'KOI')
+        print(star)
         exo = exo_all[exo_all.star_name == star]
         next = True
 
