@@ -2,8 +2,9 @@
 # -*- encoding: utf-8 -*-
 
 # My imports
-import os
+import os, sys
 import time
+import argparse
 import urllib.request, urllib.error, urllib.parse
 import pandas as pd
 import numpy as np
@@ -16,6 +17,16 @@ from astroquery.simbad import Simbad
 # For fun, but still useful
 from clint.textui import puts, colored
 warnings.simplefilter("ignore")
+
+
+def _parse_args():
+    parser = argparse.ArgumentParser('Check databases for new exoplanets')
+    parser.add_argument('database', choices=['EU', 'NASA'],
+                        type=str, help='Which database to check (EU or NASA)')
+    parser.add_argument('-d', '--download', action='store_true',
+                        help='Download the latest database')
+    args = parser.parse_args()
+    return args
 
 def writeFile(fname, data):
     """Write data to a file"""
@@ -337,7 +348,7 @@ class Update:
             writeFile('names.txt', '\n'.join(NewStars))
             updated = False
         else:
-            puts(colored.clean('    No new updates available.'))
+            puts(colored.clean('\n    No new updates available.'))
             updated = True
 
         # -------------------------------------------------------
@@ -419,11 +430,14 @@ class Update:
 
 
 if __name__ == '__main__':
+    args = _parse_args()
+    print(args)
 
     with open('starnotfoundinsimbad.list', 'a') as f:
         f.write(str(time.strftime("%d-%m-%Y"))+'\n')
 
     # Load SWEET-CAT and EU/NASA databases
-    exo_database = Update(controversial=False, download=True, nasa=True)
+    nasa = args.database == 'NASA'
+    exo_database = Update(controversial=False, download=args.download, nasa=nasa)
     # Check for new planet host stars and add the names of EU/NASA databases
     exo_database.update()
