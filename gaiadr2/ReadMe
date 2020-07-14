@@ -1,0 +1,10 @@
+get_sweetcat_gaiaid.py
+
+Reads the names of the table and look for DR2 gaia_id
+If not found it uses the gaia id from the gaiadr2/gaia_lookup.rdb
+
+Bright stars don't have gaia_id, other tricky stars also don't have. These few stars are marked as -1 for the gaia_id
+
+The file gaiadr2/gaiaid_sc.rdb is the output of the cross-matching.
+
+
