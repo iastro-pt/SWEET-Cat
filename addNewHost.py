@@ -277,9 +277,9 @@ if __name__ == '__main__':
                     logg_exo = exo.st_logg.values[0]
                     if np.isnan(logg_exo):
                         puts('The ' + colored.yellow('logg'))
-                        logg = variable_assignment(0)
+                        logg = variable_assignment(2)
                         puts('The error on ' + colored.yellow('logg'))
-                        loggerr = variable_assignment(0)
+                        loggerr = variable_assignment(2)
                     else:
                         # logg is a float
                         logg = round(float(logg_exo), 2)

@@ -7,4 +7,5 @@ names.txt
 names_controversial.txt
 
 !WEBSITE_online.rdb
+!gaiadr2/*.rdb
 check_publication.py
