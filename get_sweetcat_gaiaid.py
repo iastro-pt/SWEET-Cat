@@ -8,6 +8,8 @@ from astroquery.simbad import Simbad
 import numpy as np
 from astroquery.vizier import Vizier
 from astropy import units as u
+import os
+from astropy.table import Table
 
 ## My functions:
 def custumized_Simbad():
@@ -77,17 +79,32 @@ def create_sweetcat_gaiaid_rdb(filename = 'gaiadr2/gaiaid_sc.rdb'):
     fileo.write(line)
   fileo.close()
 
-def get_gaia_dr2_paralax(filename = 'gaiadr2/gaiaid_sc.rdb'):
+def get_gaia_dr2_paralax(filename = 'gaiadr2/gaiaid_sc.rdb', fileout= 'gaiadr2/tmp.rdb', append= True):
+  if os.path.isfile(fileout):
+    filetmp = open(fileout,"r")
+    strlines = filetmp.readlines()
+    filetmp.close()
+    name_tmp, gaiaid_tmp = np.loadtxt(fileout, unpack=True,usecols=(0,1), skiprows=2, delimiter="\t", dtype=str)
+  else:
+    print("Fresh start")
+    gaiaid_tmp = []
+    strlines = ['name\tgaia_id\tPlx\te_Plx\tGmag\te_Gmag\tRPmag\te_RPmag\tBPmag\te_BPmag\tFG\te_FG\tG_flux_std_n\n']
+    strlines.append('----\t-------\t---\t-----\t----\t------\t-----\t-------\t-----\t-------\t--\t----\t------------\n')
+
   print("Result GAIA vizier")
   vq2 = Vizier(columns=['Source','Plx','e_Plx', 'FG','e_FG','Gmag','e_Gmag', 'BPmag','e_BPmag', 'RPmag','e_RPmag', 'o_Gmag'], row_limit=5000) 
 
   name, gaia_id = np.loadtxt(filename, unpack=True, usecols=(0,1), skiprows=2, delimiter="\t", dtype=str)
   radius_search = 10.0*u.arcsec
 
-  strlines = ['name\tgaia_id\tPlx\te_Plx\tGmag\te_Gmag\tRPmag\te_RPmag\tBPmag\te_BPmag\tFG\te_FG\tG_flux_std_n\n']
-  strlines.append('----\t-------\t---\t-----\t----\t------\t-----\t-------\t-----\t-------\t--\t----\t------------\n')
+  #ist = 3127
+#  for i,gaiadr2 in enumerate(gaia_id[ist:]):
+    #i += ist
   for i,gaiadr2 in enumerate(gaia_id):
     print(i, len(gaia_id), name[i], gaiadr2)
+    if gaiadr2 in gaiaid_tmp and name[i] in name_tmp:
+      print("This one already in place")
+      continue
     if gaiadr2 == "-1":
       print(name[i], "No gaia id dr2")
       strlines.append('%s\t%s\t-1\t-1\t-1\t-1\t-1\t-1\t-1\t-1\t-1\t-1\t-1\n' % (name[i], gaiadr2))
@@ -104,8 +121,8 @@ def get_gaia_dr2_paralax(filename = 'gaiadr2/gaiaid_sc.rdb'):
           print(result_gaia_vizier[0]['Source','Plx','e_Plx', 'Gmag', 'e_Gmag', 'FG', 'e_FG', 'RPmag', 'e_RPmag', 'BPmag', 'e_BPmag'][iline])
           std_g_flux_norm1_v = result_gaia_vizier[0]['e_FG'][iline]*np.sqrt(result_gaia_vizier[0]['o_Gmag'][iline])/result_gaia_vizier[0]['FG'][iline]
         except IndexError:
-          result_gaia_vizier =  [Table( [[None], [None],[None], [None] ,[None] ,[None]   ,[None] , [None]    ] ,
-                                   names=('Plx','e_Plx','Gmag','e_Gmag','RPmag','e_RPmag','BPmag','e_BPmag')) ]
+          result_gaia_vizier =  [Table( [[-1], [-1],[-1], [-1] ,[-1], [-1] ,[-1] ,[-1]   ,[-1] , [-1]    ] ,
+                                   names=('Plx','e_Plx','Gmag','e_Gmag','FG','e_FG','RPmag','e_RPmag','BPmag','e_BPmag')) ]
           std_g_flux_norm1_v = -1
           iline=0
       print("Iline2:", iline)
@@ -117,7 +134,7 @@ def get_gaia_dr2_paralax(filename = 'gaiadr2/gaiaid_sc.rdb'):
         result_gaia_vizier[0]['FG'][iline], result_gaia_vizier[0]['e_FG'][iline],
         std_g_flux_norm1_v))
       print(strlines[-1])
-  fileo = open('gaiadr2/tmp.rdb', "w")
+  fileo = open('gaiadr2/tmp2.rdb', "w")
   for line in strlines:
     fileo.write(line)
   fileo.close()
