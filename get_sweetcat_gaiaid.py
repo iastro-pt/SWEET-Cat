@@ -140,11 +140,76 @@ def get_gaia_dr2_paralax(filename = 'gaiadr2/gaiaid_sc.rdb', fileout= 'gaiadr2/t
   fileo.close()
 
 
+def get_gaia_dr3_paralax(filename = 'gaiadr2/gaiaid_sc.rdb', fileout= 'gaiadr2/tmp_dr3.rdb', append= True):
+  if os.path.isfile(fileout):
+    filetmp = open(fileout,"r")
+    strlines = filetmp.readlines()
+    filetmp.close()
+    name_tmp, gaiaid_tmp = np.loadtxt(fileout, unpack=True,usecols=(0,1), skiprows=2, delimiter="\t", dtype=str)
+  else:
+    print("Fresh start")
+    gaiaid_tmp = []
+    strlines =     ['name\tgaia_id\tPlx\te_Plx\tGmag\te_Gmag\tRPmag\te_RPmag\tBPmag\te_BPmag\tFG\te_FG\tG_flux_std_n\n']
+    strlines.append('----\t-------\t---\t-----\t----\t------\t-----\t-------\t-----\t-------\t--\t----\t------------\n')
+
+  print("Result GAIA vizier")
+  vq2 = Vizier(columns=['Source','Plx','e_Plx', 'FG','e_FG','Gmag','e_Gmag', 'BPmag','e_BPmag', 'RPmag','e_RPmag', 'o_Gmag'], row_limit=5000) 
+
+  name, gaia_id = np.loadtxt(filename, unpack=True, usecols=(0,1), skiprows=2, delimiter="\t", dtype=str)
+  radius_search = 10.0*u.arcsec
+
+  #ist = 3100
+  #for i,gaiadr2 in enumerate(gaia_id[ist:]):
+  #  i += ist
+  for i,gaiadr2 in enumerate(gaia_id):
+    print(i, len(gaia_id), name[i], gaiadr2)
+    if gaiadr2 in gaiaid_tmp and name[i] in name_tmp:
+      print("This one already in place")
+      continue
+    if gaiadr2 == "-1":
+      print(name[i], "No gaia id dr2")
+      strlines.append('%s\t%s\t-1\t-1\t-1\t-1\t-1\t-1\t-1\t-1\t-1\t-1\t-1\n' % (name[i], gaiadr2))
+    else:
+      result_gaia_vizier_dr3=vq2.query_object("Gaia DR2 "+str(gaiadr2), catalog=["I/350/gaiaedr3"], radius=radius_search*15.)
+      try:
+        iline3 = np.where(result_gaia_vizier_dr3[0]['Source'] == int(gaiadr2))[0][0]
+        print(result_gaia_vizier_dr3[0]['Source','Plx','e_Plx', 'Gmag', 'e_Gmag', 'FG', 'e_FG', 'RPmag', 'e_RPmag', 'BPmag', 'e_BPmag'][iline3])
+        std_g_flux_norm1_v = result_gaia_vizier_dr3[0]['e_FG'][iline3]*np.sqrt(result_gaia_vizier_dr3[0]['o_Gmag'][iline3])/result_gaia_vizier_dr3[0]['FG'][iline3]
+      except IndexError:
+        result_gaia_vizier_dr3=vq2.query_object("Gaia DR2 "+str(gaiadr2), catalog=["I/350/gaiaedr3"], radius=radius_search*25.)
+        try:
+          iline3 = np.where(result_gaia_vizier_dr3[0]['Source'] == int(gaiadr2))[0][0]
+          print(result_gaia_vizier_dr3[0]['Source','Plx','e_Plx', 'Gmag', 'e_Gmag', 'FG', 'e_FG', 'RPmag', 'e_RPmag', 'BPmag', 'e_BPmag'][iline3])
+          std_g_flux_norm1_v = result_gaia_vizier_dr3[0]['e_FG'][iline3]*np.sqrt(result_gaia_vizier_dr3[0]['o_Gmag'][iline3])/result_gaia_vizier_dr3[0]['FG'][iline3]
+
+        except IndexError:
+          result_gaia_vizier_dr3 =  [Table( [[-1], [-1],[-1], [-1] ,[-1], [-1] ,[-1] ,[-1]   ,[-1] , [-1]    ] ,
+                                   names=('Plx','e_Plx','Gmag','e_Gmag','FG','e_FG','RPmag','e_RPmag','BPmag','e_BPmag')) ]
+          std_g_flux_norm1_v = -1
+          iline3=0
+      print("Iline2:", iline3)
+      strlines.append('%s\t%s\t%7.4f\t%7.4f\t%7.4f\t%7.4f\t%7.4f\t%7.4f\t%7.4f\t%7.4f\t%.3e\t%.3e\t%10.7f\n' % (name[i], gaiadr2, 
+        result_gaia_vizier_dr3[0]['Plx'][iline3], result_gaia_vizier_dr3[0]['e_Plx'][iline3],
+        result_gaia_vizier_dr3[0]['Gmag'][iline3], result_gaia_vizier_dr3[0]['e_Gmag'][iline3],
+        result_gaia_vizier_dr3[0]['RPmag'][iline3], result_gaia_vizier_dr3[0]['e_RPmag'][iline3],
+        result_gaia_vizier_dr3[0]['BPmag'][iline3], result_gaia_vizier_dr3[0]['e_BPmag'][iline3],
+        result_gaia_vizier_dr3[0]['FG'][iline3], result_gaia_vizier_dr3[0]['e_FG'][iline3],
+        std_g_flux_norm1_v))
+      print(strlines[-1])
+  fileo = open('tmp2_dr3.rdb', "w")
+  for line in strlines:
+    fileo.write(line)
+  fileo.close()
+
+
+
 ### Main program:
 def main():
   print("Hello")
   #create_sweetcat_gaiaid_rdb()
-  get_gaia_dr2_paralax()
+  #get_gaia_dr2_paralax()
+  get_gaia_dr3_paralax()
+
 
 if __name__ == "__main__":
     main()
