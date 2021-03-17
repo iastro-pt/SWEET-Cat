@@ -4,6 +4,7 @@ import argparse
 from astropy import constants as c
 from numpy import log10
 import numpy as np
+import os
 
 def _parse():
     '''Calculate the surface gravity from M and R'''
@@ -41,7 +42,27 @@ def logg_gaia(mass, teff, gaia_gmag, gaia_paralax, Ag = 0, teff_sun=5777):
     logg_gaia = log10(mass) + 4*log10(teff)-4*log10(teff_sun) + 0.4*mbol_star - 0.4*mbol_sun + logg_sun
     return logg_gaia
 
+def logg_gaia_error(mass, emass, teff, eteff, gaia_gmag, egaia_gmag, gaia_paralax, egaia_paralax, Ag=0, teff_sun=5777, npoints = 10000):
+    masss = np.random.normal(mass, emass, npoints)
+    teffs = np.random.normal(teff, eteff, npoints)
+    gaia_gmags = np.random.normal(gaia_gmag, egaia_gmag, npoints)
+    gaia_paralaxs = np.random.normal(gaia_paralax, egaia_paralax, npoints)
+
+    logg_gaia_dist = np.zeros(npoints)
+
+    for i in range(npoints):
+        logg_gaia_dist[i] = logg_gaia(masss[i], teffs[i], gaia_gmags[i], gaia_paralaxs[i])
+
+    meanlogg = np.mean(logg_gaia_dist)
+    stdlogg = np.std(logg_gaia_dist)
+    return meanlogg, stdlogg
+
+
 def main():
+    dir_script = os.path.dirname(__file__)
+    if dir_script != "" :
+        dir_script+='/'
+    print(dir_script)
     args = _parse()
     print(('logg: %.2f' % logg(args.M, args.R)))
 

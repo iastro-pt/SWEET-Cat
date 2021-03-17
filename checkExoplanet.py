@@ -40,15 +40,18 @@ class Update:
         self.controversial = controversial
         self.download = download
         self.nasa = nasa
-        self.fname_sc = 'WEBSITE_online_EU-NASA_full_database_clean.rdb'
+        dir_script = os.path.dirname(__file__)
+        if dir_script != "" :
+            dir_script+='/'
+        self.fname_sc = dir_script+'WEBSITE_online_EU-NASA_full_database_clean.rdb'
 
         # if self.controversial:
         #     self.fname = 'exo_cont.csv'
         # else:
         if nasa:
-            self.fname = 'nasaexo.csv'
+            self.fname = dir_script+'nasaexo.csv'
         else:
-            self.fname = 'exo.csv'
+            self.fname = dir_script+'exo.csv'
 
         self.blacklist = ['hatp69', 'hatp70', 'denispj082303.1491201']
         # HAT stars are A stars and denis is a L dwarf
