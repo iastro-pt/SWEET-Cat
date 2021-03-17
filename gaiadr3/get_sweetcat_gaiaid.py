@@ -162,7 +162,7 @@ def get_logg_gaia(filename = 'sweet_gaia_dr3.rdb', fileout='sweet_logg_dr3.rdb',
   plx,eplx, gmag, egmag = np.loadtxt(filename, unpack=True, usecols=(2,3,4,5), skiprows=2, delimiter="\t")
   exodb = cEx.Update(controversial=False)
 
-  for i,gaiadr2 in enumerate(gaia_id[:1500]):
+  for i,gaiadr2 in enumerate(gaia_id):
     mass = exodb.SC.iloc[i]['M']
     ermass = exodb.SC.iloc[i]['Merr']
     teff = exodb.SC.iloc[i]['Teff']
@@ -194,10 +194,7 @@ def get_logg_gaia(filename = 'sweet_gaia_dr3.rdb', fileout='sweet_logg_dr3.rdb',
       logg_gaiadr3, erlogg_gaiadr3 = logg.logg_gaia_error(mass, ermass, teff, erteff, gaia_gmag, ergaia_gmag, gaia_paralax, ergaia_paralax)
       print(logg_gaiadr3, erlogg_gaiadr3, loggsw, erloggsw)
       strlines.append('%s\t%s\t%5.2f\t%5.2f\t%5.2f\t%5.2f\t%6d\t%6d\t%2d\n' % (name[i], gaiadr2, logg_gaiadr3, erlogg_gaiadr3, loggsw, erloggsw, teff, erteff, source))
-  if append:     
-    fileo = open(fileout, "a")
-  else:
-    fileo = open(fileout, "w")
+  fileo = open(fileout, "w")
   for line in strlines:
     fileo.write(line)
   fileo.close()
