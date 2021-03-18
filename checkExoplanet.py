@@ -36,14 +36,16 @@ def writeFile(fname, data):
 
 class Update:
     """Check for updates to SWEET-Cat comparing with exoplanet.eu"""
-    def __init__(self, controversial, download=False, nasa=False):
+    def __init__(self, controversial, download=False, nasa=False, filedatabase = 'WEBSITE_online_EU-NASA_full_database_clean.rdb'):
         self.controversial = controversial
         self.download = download
         self.nasa = nasa
         dir_script = os.path.dirname(__file__)
         if dir_script != "" :
             dir_script+='/'
-        self.fname_sc = dir_script+'WEBSITE_online_EU-NASA_full_database_clean.rdb'
+        if filedatabase == 'WEBSITE_online_EU-NASA_full_database_clean.rdb':
+            filedatabase = dir_script+'WEBSITE_online_EU-NASA_full_database_clean.rdb'
+        self.fname_sc = filedatabase
 
         # if self.controversial:
         #     self.fname = 'exo_cont.csv'
