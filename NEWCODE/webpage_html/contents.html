@@ -1,0 +1,196 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pt" lang="pt">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-15" />
+  <meta name="description" content="SWEET-Cat: a catalog of stellar parameters for stars with planets" />   
+  <title>SWEET-Cat: a catalog of stellar parameters for stars with planets</title>
+<style>
+
+.content-table {
+  font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+  border-collapse: collapse;
+  margin: 25px 0;
+  font-size: 0.9em;
+  min-width: 400px;
+  border-radius: 5px 5px 0 0;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.content-table thead tr {
+  background-color: #00FFFF;
+  color: #039;
+  text-align: left;
+  font-weight: bold;
+}
+
+.content-table th,
+.content-table td {
+  padding: 12px 15px;
+  font-size: 14px;
+}
+
+.content-table tbody tr {
+  border-bottom: 1px solid #dddddd;
+  white-space: nowrap;
+}
+
+.content-table tbody tr:nth-of-type(even) {
+  background-color: #f3f3f3;
+}
+
+.content-table tbody tr:last-of-type {
+  border-bottom: 2px solid #b9c9fe;
+}
+
+h1 { color: #039; font-family: 'Righteous', cursive; font-size: 65px; font-weight: normal; margin:0; padding:0}
+
+h2 { font-size: 30px; font-family: 'Righteous', cursive; letter-spacing: -1px; color: #039; margin:0; padding:0;}
+
+h3 { font-size: 26px; font-family: 'Righteous', cursive; letter-spacing: -1px; color: #039}
+
+
+.button {
+  border: none;
+  color: #039;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  width: 180px;
+  font-weight : bold ;
+
+}
+
+.button1 {background-color: #4CAF50;} /* Green */
+.button2 {background-color: #008CBA;} /* Blue */
+.button3 {background-color: #00FFFF;} /* Blue SW */
+
+.button3:hover {
+  background-color: #4CAF50;
+  color: white;
+}
+
+</style>
+
+</head>
+<body>
+<table>
+<tr><td><td><img src="http://www.astro.up.pt/imagens/logo_caup.png" /></td><td><h1>SWEET-Cat</h1>
+<h3>A catalog of stellar parameters for stars with planets</h3></td></tr>
+
+</td>
+</tr>
+
+
+<!--
+<tr><td>
+<td>&nbsp;</td>
+<table>
+<tr><td>
+<td style="padding-left: 50px; padding-right: 1px">
+  <img src="stat_chart.png" alt="centered image" />
+</td>
+<td>
+<table>
+<tr><td><td>
+  <button class="button button3" onclick=" window.open('download/SWEETCAT_Dataframe.csv')">Download</button>
+  <button class="button button3" onclick=" window.open('contents.html','_blank')">Contents</button>
+</td></tr>
+<tr><td><td>
+  <button class="button button3" onclick=" window.open('gallery.html','_blank')">Gallery</button>
+  <button class="button button3" onclick=" window.open('SWEET-Cat Python Tutorial.html','_blank')">Python</button>
+</td></tr>
+<tr><td><td>
+  <button class="button button3" onclick=" window.open('http://google.com','_blank')">Publications</button>
+  <button class="button button3" onclick=" window.open('about.html','_blank')">About</button>
+</td></tr>
+
+</table>
+</td>
+</tr>
+</table>
+
+</tr>
+-->
+
+</table>
+
+
+
+<h3>Contents of the table</h3>
+<b>Note:</b> This is the full list of columns available in the table for download!
+
+
+<table class="content-table">
+  <thead>
+    <tr>
+      <th style="font-size:16px">Name</th>
+      <th style="font-size:16px">Unit</th>
+      <th style="font-size:16px">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+
+<tr><td>Name        </td> <td> - </td> <td> Identifier name for the planet-host star </td></tr>
+<tr><td>hd          </td> <td> - </td> <td> HD Number </td></tr>
+<tr><td>RA          </td> <td> [h:m:s]  </td> <td> Right Ascension </td></tr>
+<tr><td>DEC         </td> <td> [deg:m:s]</td> <td> Declination </td></tr>
+<tr><td>Vmag        </td> <td> - </td> <td> Visual magnitude </td></tr>
+<tr><td>eVmag       </td> <td> - </td> <td> Error on visual magnitude </td></tr>
+<tr><td>PlxFlag     </td> <td> - </td> <td> Flag indicating source of paralax </td></tr>
+<tr><td>Teff        </td> <td> [K] </td> <td> Effective temperature </td></tr>
+<tr><td>eTeff       </td> <td> [K] </td> <td> Error on effective temperature. </td></tr>
+<tr><td>Logg        </td> <td> [dex] </td> <td> Spectroscopic surface gravity. </td></tr>
+<tr><td>eLogg       </td> <td> [dex] </td> <td> Error on spectroscopic surface gravity. </td></tr>
+<tr><td>Vt          </td> <td> [km/s] </td> <td> Microturbulence. </td></tr>
+<tr><td>eVt         </td> <td> [km/s] </td> <td> Error on microturbulence. </td></tr>
+<tr><td>[Fe/H]      </td> <td> [dex] </td> <td> Iron abundance (proxy for metallicity). </td></tr>
+<tr><td>e[Fe/H]     </td> <td> [dex] </td> <td> Error on iron abundance. </td></tr>
+<tr><td>Reference   </td> <td> - </td> <td> Source of the spectroscopic parameters. </td></tr>
+<tr><td>Link        </td> <td> - </td> <td> URL address to reference. </td></tr>
+<tr><td>SWFlag      </td> <td> - </td> <td> Homogeneous flag. </td></tr>
+<tr><td>Update      </td> <td> - </td> <td> Date of last update on entry. </td></tr>
+<tr><td>Comment     </td> <td> - </td> <td> Relevant comments for entry. </td></tr>
+<tr><td>Database    </td> <td> - </td> <td> Indicates if planet host is in exo.eu and/or nasa archive </td></tr>
+<tr><td>gaia_dr2    </td> <td> - </td> <td> GAIA DR2 source id. </td></tr>
+<tr><td>gaia_dr3    </td> <td> - </td> <td> GAIA DR3 source id. </td></tr>
+<tr><td>Plx         </td> <td> [mas] </td> <td> Paralax </td></tr>
+<tr><td>ePlx        </td> <td> [mas] </td> <td> Error on paralax </td></tr>
+<tr><td>Gmag        </td> <td> - </td> <td> GAIA G magnitude </td></tr>
+<tr><td>eGmag       </td> <td> - </td> <td> Error on GAIA G magnitude. </td></tr>
+<tr><td>RPmag       </td> <td> - </td> <td> GAIA red pass magnitude </td></tr>
+<tr><td>eRPmag      </td> <td> - </td> <td> Error on red pass magnitude. </td></tr>
+<tr><td>BPmag       </td> <td> - </td> <td> GAIA blue pass magnitude </td></tr>
+<tr><td>eBPmag      </td> <td> - </td> <td> Error on blue pass magnitude </td></tr>
+<tr><td>FG          </td> <td> [e-/s] </td> <td> Mean flux of GAIA G band </td></tr>
+<tr><td>eFG         </td> <td> [e-/s] </td> <td> Error on mean flux of GAIA G band </td></tr>
+<tr><td>G_flux_std_n</td> <td> - </td> <td> GAIA photometry activity index </td></tr>
+<tr><td>logg_gaia   </td> <td> [dex] </td> <td> Derived GAIA DR3 surface gravity </td></tr>
+<tr><td>e_logg_gaia </td> <td> [dex] </td> <td> error on derived GAIA DR3 surface gravity. </td></tr>
+<tr><td>Mass_t      </td> <td> [M<span style="font-size:8px">&#9737;</span>] </td> <td> Derived stellar mass. </td></tr>
+<tr><td>eMass_t     </td> <td> [M<span style="font-size:8px">&#9737;</span>] </td> <td> Error on derived stellar mass. </td></tr>
+<tr><td>Radius_t    </td> <td> [R<span style="font-size:8px">&#9737;</span>] </td> <td> Derived stellar radius. </td></tr>
+<tr><td>eRadius_t   </td> <td> [R<span style="font-size:8px">&#9737;</span>] </td> <td> Error on derived stellar radius. </td></tr>
+<tr><td>spec_base   </td> <td> - </td> <td> Base name of spectra filename. </td></tr>
+<tr><td>Distance    </td> <td> [pc] </td> <td> Distance </td></tr>
+<tr><td>Distance_b  </td> <td> [pc] </td> <td> Distance from <a href="https://ui.adsabs.harvard.edu/abs/2021AJ....161..147B/abstract">Bailer Jones et al. 2021</a></td></tr>
+<tr><td>eDistance_b </td> <td> [pc] </td> <td> Errors on Distance from <a href="https://ui.adsabs.harvard.edu/abs/2021AJ....161..147B/abstract">Bailer Jones et al. 2021</a></td></tr>
+<tr><td>RA_EU       </td> <td> [deg] </td> <td> Right Ascension (exo.eu) </td></tr>
+<tr><td>DEC_EU      </td> <td> [deg] </td> <td> Declination (exo.eu) </td></tr>
+<tr><td>RA_NASA     </td> <td> [deg] </td> <td> Right Ascension (nasa archive) </td></tr>
+<tr><td>DEC_NASA    </td> <td> [deg] </td> <td> Declination (nasa archive) </td></tr>
+
+<!-- INSERT ROWS HERE !-->
+
+  </tbody>
+</table>
+
+
+
+</body>
+</html>
+
