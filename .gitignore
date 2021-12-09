@@ -10,3 +10,4 @@ names_controversial.txt
 !gaiadr2/*.rdb
 check_publication.py
 !gaiadr3/*.rdb
+!NEWCODE/webpage_html/download/SWEETCAT_Dataframe.csv
