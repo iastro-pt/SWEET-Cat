@@ -8,7 +8,7 @@ from astropy import units as u
 import matplotlib.cm as cm
 from matplotlib.colors import LogNorm
 from matplotlib.ticker import NullFormatter
-
+from datetime import date
 
 px  = 1/plt.rcParams['figure.dpi']  # pixel in inches
 
@@ -233,8 +233,10 @@ def plot_sky_SC_chart(SC):
   fig = plt.figure(figsize=(12,8))
   fig.patch.set_facecolor('cyan')
   ax = fig.add_subplot(111, projection="mollweide")
-  ax.scatter(ra.radian, dec.radian, c="darkorange",s=40, alpha=0.75, cmap=cm.brg, label="SWFlag = 0")
-  ax.scatter(rah.radian, dech.radian, c="deepskyblue",s=30, alpha=0.75, cmap=cm.brg, label="SWFlag = 1")
+#  ax.scatter(ra.radian, dec.radian, c="darkorange",s=40, alpha=0.75, cmap=cm.brg, label="SWFlag = 0")
+#  ax.scatter(rah.radian, dech.radian, c="deepskyblue",s=30, alpha=0.75, cmap=cm.brg, label="SWFlag = 1")
+  ax.scatter(ra.radian, dec.radian, c="darkorange",s=40, alpha=0.75, cmap=cm.brg, label="Literature Values")
+  ax.scatter(rah.radian, dech.radian, c="deepskyblue",s=30, alpha=0.75, cmap=cm.brg, label="Homogeneous Values")
   ax.set_xticklabels(['14h','16h','18h','20h','22h','0h','2h','4h','6h','8h','10h'])
   ax.set_facecolor('#0b1925')
   ax.grid(color='white', linestyle='--', linewidth=0.5)
@@ -245,7 +247,11 @@ def plot_sky_SC_chart(SC):
   [t.set_color('k') for t in ax.yaxis.get_ticklabels()]
   [t.set_fontweight('bold') for t in ax.yaxis.get_ticklabels()]
   ax.grid(True)
-  ax.legend(loc='upper left')
+  ax.legend(loc='upper right')
+  today = date.today()
+  #Textual month, day and year  
+  d2 = today.strftime("%d/%m/%Y")
+  ax.text(0.78, 0.10, "Generated on: %s" % (d2), transform=fig.transFigure);
   fig.tight_layout()
   fig.savefig("SC_sky_chart.png")
   plt.show()
@@ -312,6 +318,10 @@ def plot_feh_mass_period_all(datafile, homog=1, field_mass='mass_taken', field_p
         ax.spines['right'].set_visible(False)
         ax.grid(color='grey', linestyle='-', linewidth=0.25, alpha=0.5)
         ax.set_ylim([10**-1,10**5])
+    today = date.today()
+    #Textual month, day and year  
+    d2 = today.strftime("%d/%m/%Y")
+    ax.text(0.15, 0.90, "Generated on: %s" % (d2), transform=fig.transFigure);
     plt.show()
     fig.savefig("mass_metallicity_plane_all.png")
 
@@ -332,9 +342,12 @@ def plot_histograms_parameters(SC):
     ax.grid(color='grey', linestyle='-', linewidth=0.25, alpha=0.5)
     ax.set_ylabel("Number of stars")
     ax.set_xlabel(xtitles[i])
-
-  plt.show()
+  today = date.today()
+  #Textual month, day and year  
+  d2 = today.strftime("%d/%m/%Y")
+  ax.text(0.78, 0.04, "Generated on: %s" % (d2), transform=fig.transFigure);
   fig.tight_layout()
+  plt.show()
   fig.savefig("SC_distributions.png")
 
 
@@ -445,16 +458,17 @@ def get_planet_propreties(load = True):
 def main():
 
 
-  sweet_database = "/home/sousasag/Nextcloud/WORK/spectra/sweet_cat_spec_2020/prog/database/SWEETCAT_Dataframe_fix.csv"
+  #sweet_database = "/home/sousasag/Nextcloud/WORK/spectra/sweet_cat_spec_2020/prog/database/SWEETCAT_Dataframe_fix.csv"
+  sweet_database = "download/SWEETCAT_Dataframe.csv"
   SC_full_load = pd.read_csv(sweet_database, dtype=dtype_SW)
-  create_html_table(SC_full_load)
-  SC_stats(SC_full_load, plot_stats=True)
-  plot_sky_SC_chart(SC_full_load)
+  #create_html_table(SC_full_load)
+  #SC_stats(SC_full_load, plot_stats=True)
+  #plot_sky_SC_chart(SC_full_load)
 
-  plot_histograms_parameters(SC_full_load)
-  #see in the jupyter notebook how to create this file
+  #plot_histograms_parameters(SC_full_load)
 
-  get_planet_propreties(load = True)
+  #see in the jupyter notebook (SWEET-CAT_Exoeu_link.ipynb) how to create this file
+  #get_planet_propreties(load = True)
   plot_feh_mass_period_all("data_new.csv")
   return
 

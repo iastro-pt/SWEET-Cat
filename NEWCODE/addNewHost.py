@@ -33,6 +33,7 @@ columns_SW = ['Name', 'hd', 'RA', 'DEC', 'Vmag', 'eVmag', 'PlxFlag', 'Teff', 'eT
        'eMass_t', 'Radius_t', 'eRadius_t', 'spec_base', 'Distance', 'RA_EU',
        'DEC_EU', 'RA_NASA', 'DEC_NASA', 'Distance_b', 'eDistance_b']
 
+
 dtype_SW = {'gaia_dr2':'int64','gaia_dr3':'int64'}
 
 def remove_planet(name):
@@ -95,6 +96,30 @@ def get_gaiadr2(name):
         gaiadr2 = get_gaia_dr2_id(result_ids)
     return gaiadr2
 
+def get_gaia_dr3_id(results_ids):
+  for name in results_ids[::-1]:
+    #print(name[0])
+    if "Gaia EDR3 " in name[0]:
+      return name[0].split(" ")[-1]
+  return -1
+
+def get_gaiadr3(name):
+    customSimbad=custumized_Simbad()
+    if name[-2:] == " A":
+        name =  name[:-2]
+    if "(AB)" in name:
+        name = name.replace("(AB)", "")
+    if "Qatar" in name:
+        name = name.replace("-","")
+    try:
+        result_ids = customSimbad.query_objectids(name)
+    except:
+        result_ids = customSimbad.query_objectids(name)
+    if result_ids is None:
+        gaiadr3 = -1
+    else:
+        gaiadr3 = get_gaia_dr3_id(result_ids)
+    return gaiadr3
 
 
 def get_gaiadr3_data(gaiadr2, gaia3, name_search=None):
@@ -408,7 +433,7 @@ if __name__ == '__main__':
                    'st_teff', 'st_tefferr1', 'st_tefferr2',
                    'st_logg', 'st_loggerr1', 'st_loggerr2',
                    'st_mass', 'st_masserr1', 'st_masserr2',
-                   'st_spectype']
+                   'st_spectype', 'pl_refname', 'gaia_id']
 
     if nasa:
         # Loading NASA exoplanet archive
@@ -618,15 +643,25 @@ if __name__ == '__main__':
                 puts('The error on '+colored.yellow('microturbulence'))
                 vterr = variable_assignment(2)
 
-                # Author and link to ADS
-                puts('Who is the '+colored.yellow('author?'))
-                author = input('> ').strip()
-                if author == '':
-                    author = empty
-                puts('Link to article ('+colored.yellow('ADS')+')')
-                link = input('> ').strip()
-                if link == '':
-                    link = empty
+                if nasa:
+                    t = exo.pl_refname[0]
+                    print(t)
+                    ts = t.replace(" target=ref> ", "00coisinha00").replace('href=',"00coisinha00").replace('target=ref>',"00coisinha00").replace("</a>","").split("00coisinha00")
+                    print(ts)
+                    print("Link:", ts[1])
+                    print("author:", ts[2])
+                    author = ts[2].strip()
+                    link = ts[1].strip()
+                else:
+                    # Author and link to ADS
+                    puts('Who is the '+colored.yellow('author?'))
+                    author = input('> ').strip()
+                    if author == '':
+                        author = empty
+                    puts('Link to article ('+colored.yellow('ADS')+')')
+                    link = input('> ').strip()
+                    if link == '':
+                        link = empty
                 # Source flag
                 puts(colored.yellow('Source flag'))
                 source = input('(0/1) > ')
@@ -729,11 +764,15 @@ if __name__ == '__main__':
                         if comment == '':
                             comment = 'NULL'
 
-                    # Exoplanet database
-                    puts('From which exoplanet database:' + colored.yellow('EU or NASA or EU,NASA'))
-                    database = input('> ')
-                    if database == '':
-                        database = 'NULL'
+                    if nasa:
+                        database = "NASA"
+                    else:
+                        database = "EU"
+#                    # Exoplanet database
+#                    puts('From which exoplanet database:' + colored.yellow('EU or NASA or EU,NASA'))
+#                    database = input('> ')
+#                    if database == '':
+#                        database = 'NULL'
 
                 except:
 
@@ -792,12 +831,15 @@ if __name__ == '__main__':
                     comment = input('> ')
                     if comment == '':
                         comment = 'NULL'
-
-                    # Exoplanet database
-                    puts('From which exoplanet database: ' + colored.yellow('EU or NASA or EU,NASA'))
-                    database = input('> ')
-                    if database == '':
-                        database = 'NULL'
+                    if nasa:
+                        database = "NASA"
+                    else:
+                        database = "EU"
+#                    # Exoplanet database
+#                    puts('From which exoplanet database: ' + colored.yellow('EU or NASA or EU,NASA'))
+#                    database = input('> ')
+#                    if database == '':
+#                        database = 'NULL'
 
                 # Last update
                 update = str(time.strftime("%Y-%m-%d"))
@@ -807,14 +849,29 @@ if __name__ == '__main__':
 
                 gaiadr2 = get_gaiadr2(name)
                 if gaiadr2 == -1:
-                    print("GAIA DR2 Not found automatically:")
-                    puts('Insert ' + colored.yellow('GAIADR2'))
-                    gaiadr2 = input('> ')
-    
+                    if nasa:
+                        try:
+                            gaiadr2 = exo.gaia_id[0].replace("Gaia DR2 ", "")
+                        except:
+                            gaiadr2 = -1
+                    else:    
+                        print("GAIA DR2 Not found automatically:")
+                        puts('Insert ' + colored.yellow('GAIADR2'))
+                        gaiadr2 = input('> ')
                 print("GAIADR2:", gaiadr2)
 
                 #Assuming GAIADR3 = GAIADR2
-                gaiadr3 = gaiadr2
+                gaiadr3 = get_gaiadr3(name)
+                if gaiadr3 == -1:
+                    if nasa:
+                        try:
+                            gaiadr3 = exo.gaia_id[0].replace("Gaia DR2 ", "")
+                        except:
+                            gaiadr3 = -1
+                    else:
+                        print("GAIA EDR3 Not found automatically:")
+                        puts('Insert ' + colored.yellow('GAIA EDR3'))
+                        gaiadr3 = input('> ')
                 print("GAIADR3:", gaiadr3)
 
                 #getting DR3 data:
@@ -851,12 +908,7 @@ if __name__ == '__main__':
 
                 print(gaia_data)
 
-
-
-
-
-
-                new_row = pd.DataFrame([], columns=SW_columns, dtype=dtype_SW)
+                new_row = pd.DataFrame([], columns=columns_SW)
                 new_row = new_row.append({"Name": "Empty"}, ignore_index = True)
                 new_row["Name"]         = name
                 new_row["hd"]           = HD
@@ -884,23 +936,23 @@ if __name__ == '__main__':
                 new_row["gaia_dr3"]     = str(gaiadr3) 
 
                 new_row["Plx"]          = gaia_data["Plx"]
-                new_row["e_Plx"]        = gaia_data["e_Plx"] 
+                new_row["ePlx"]         = gaia_data["e_Plx"] 
                 new_row["Gmag"]         = gaia_data["Gmag"]
-                new_row["e_Gmag"]       = gaia_data["e_Gmag"]
+                new_row["eGmag"]        = gaia_data["e_Gmag"]
                 new_row["RPmag"]        = gaia_data["RPmag"]
-                new_row["e_RPmag"]      = gaia_data["e_RPmag"] 
+                new_row["eRPmag"]       = gaia_data["e_RPmag"] 
                 new_row["BPmag"]        = gaia_data["BPmag"]
-                new_row["e_BPmag"]      = gaia_data["e_BPmag"]
+                new_row["eBPmag"]       = gaia_data["e_BPmag"]
                 new_row["FG"]           = gaia_data["FG"]
-                new_row["e_FG"]         = gaia_data["e_FG"]
+                new_row["eFG"]          = gaia_data["e_FG"]
                 new_row["G_flux_std_n"] = std_g_flux
 
-                new_row["logg_gaia"]    = logg_gaiadr3
-                new_row["e_logg_gaia"]  = erlogg_gaiadr3
-                new_row["mass_t"]       = masst
-                new_row["e_mass_t"]     = emasst
-                new_row["radius_t"]     = radiust
-                new_row["e_radius_t"]   = eradiust
+                new_row["Logg_gaia"]    = logg_gaiadr3
+                new_row["eLogg_gaia"]   = erlogg_gaiadr3
+                new_row["Mass_t"]       = masst
+                new_row["eMass_t"]      = emasst
+                new_row["Radius_t"]     = radiust
+                new_row["eRadius_t"]    = eradiust
 
                 new_row["spec_base"]    = None
                 new_row["Distance"]     = 1000./new_row["Plx"].astype(float)

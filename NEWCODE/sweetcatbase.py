@@ -6,6 +6,7 @@ import numpy as np
 from astropy.io import votable
 import warnings
 import urllib.request, urllib.error, urllib.parse
+from clint.textui import puts, colored 
 
 file_path=os.path.dirname(__file__)
 
@@ -187,7 +188,7 @@ def check_SW_coordinates(SCcsv, EXOcsv, NASAcsv):
         print("missing NASA RA DEC:", i, SC.Name[i])
       else:
         sep_nasa = coordSC[i].separation(coordSCNASA[i]).arcsecond
-        #print(sep_eu, np.nanmin(sep))
+        #print(sep_nasa, np.nanmin(sep))
         if sep_nasa > np.min(sep):
           print(i,SC.Name[i], sep_nasa, nasa.pl_name[ind[0]], sepnasa[indnasa[0]], nasa.pl_name[indnasa[0]])
 
@@ -231,7 +232,7 @@ def check_missing_SweetCat_ExoEU2(SCcsv, EXOcsv):
   fileadd = open("names.txt", 'w')
   for n in names_eu_to_add_u:
     p = exo_iloc[names_eu_to_add.index(n)]
-    fileadd.write(str(n)+"\t"+str(exo['ra'][p])+"\t"+str(exo['dec'][p])+"\n")
+    fileadd.write(str(n)+"\t"+str(exo['ra'][p])+"\t"+str(exo['dec'][p])+"\t"+str(exo['star_teff'][p])+"\t"+str(exo['mag_v'][p])+"\n")
 
   fileadd.close()
   print(names_eu_to_add)
@@ -278,6 +279,45 @@ def check_missing_SweetCat_NASA(SCcsv, NASAcsv):
 
 
 
+def add_nasa_flag_SC(fileSW):
+  SC = pd.read_csv(fileSW, dtype=dtype_SW)
+  nasanames = pd.read_csv("namesnasa.txt", delimiter="\t", names=["star","ra","dec"])
+  coordsnasanames = coord.SkyCoord(ra=nasanames['ra'].values,
+                               dec=nasanames['dec'].values,
+                               unit=(u.deg, u.deg), frame='icrs')
+  coordSC     = coord.SkyCoord(ra=SC['RA'].values,
+                               dec=SC['DEC'].values,
+                               unit=(u.hourangle, u.deg),
+                               frame='icrs')
+  droprows = []
+  for n in range(len(nasanames)):
+    sep = coordsnasanames[n].separation(coordSC).arcsecond
+    ind = np.where(sep <= np.nanmin(sep))[0]
+    print(n,len(nasanames), nasanames["star"][n],SC.Name[ind[0]], sep[ind[0]], SC.Database[ind[0]], ind[0], SC.RA_NASA[ind[0]])
+    if sep[ind[0]] < 10:
+      val = input(colored.green("Accept? ([Y]/N): "))
+      if val == "" or val.upper() == "Y":
+        val = True
+      else:
+        val = False
+    else:
+      val = input(colored.red("Accept? (Y/[N]): "))
+      if val == "" or val.upper() == "N":
+        val = False
+      else:
+        val = True
+    print(val)
+    if val:
+      SC.at[ind[0],"Database"] = "EU,NASA"
+      droprows.append(n)
+      SC.at[ind[0],"RA_NASA"] = coordsnasanames[n].ra.value
+      SC.at[ind[0],"DEC_NASA"] = coordsnasanames[n].dec.value
+    print(nasanames["star"][n],SC.Name[ind[0]], sep[ind[0]], SC.Database[ind[0]])
+    print(len(droprows))
+  nasanames=nasanames.drop(droprows)
+  SC.to_csv("update.csv", index=False)
+  nasanames.to_csv("namesnasa_c.txt", index=False, delimiter="\t")
+
 
 ### Main program:
 def main():
@@ -293,16 +333,22 @@ def main():
 
 
 ##1: Check coordinates:
-  #check_SW_coordinates(fileSW, "exo.csv", "nasaexo.csv")
-  #return
-
-##2: Check EU missing:
-  check_missing_SweetCat_ExoEU2(fileSW, "exo.csv")
+  check_SW_coordinates(fileSW, "exo.csv", "nasaexo.csv")
   return
 
-##3: Check NASA missing:
-  #check_missing_SweetCat_NASA("SWEETCAT_Dataframe_fix.csv", "nasaexo.csv")
+##2: Check EU missing:
+  #check_missing_SweetCat_ExoEU2(fileSW, "exo.csv")
   #return
+
+##3: Add missing NASA flag (namesnasa.txt):
+  #add_nasa_flag_SC(fileSW)
+  #return
+
+##4: Check NASA missing:
+  #check_missing_SweetCat_NASA(fileSW, "nasaexo.csv")
+  #return
+
+
 
 
 
