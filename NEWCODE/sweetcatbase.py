@@ -134,7 +134,7 @@ def downloadNasaExoplanetNew():
 def check_SW_coordinates(SCcsv, EXOcsv, NASAcsv):
   SC = pd.read_csv(SCcsv, dtype=dtype_SW)
   exo = pd.read_csv(EXOcsv)
-  exo = exo[(exo.detection_type == 'Radial Velocity') | (exo.detection_type == 'Primary Transit') | (exo.detection_type == 'Astrometry')]
+  exo = exo[(exo.detection_type == 'Radial Velocity') | (exo.detection_type == 'Primary Transit') | (exo.detection_type == 'Astrometry') | (exo.detection_type == 'Default')]
   exo = exo.reset_index()
   nasa = pd.read_csv(NASAcsv)
 
@@ -175,6 +175,8 @@ def check_SW_coordinates(SCcsv, EXOcsv, NASAcsv):
         #print(sep_eu, np.nanmin(sep))
         if sep_eu > np.min(sep):
           print(i,SC.Name[i], sep_eu, ind[0], exo.name[ind[0]], sepeu[indeu[0]], exo.name[indeu[0]])
+        if sepeu[indeu[0]] > 0.01: 
+          print("OIOIOI\n",i,SC.Name[i], sep_eu, ind[0], exo.name[ind[0]], sepeu[indeu[0]], exo.name[indeu[0]])
 
   #check NASA
   print("\n\nChecking NASA:\n")
@@ -191,6 +193,8 @@ def check_SW_coordinates(SCcsv, EXOcsv, NASAcsv):
         #print(sep_nasa, np.nanmin(sep))
         if sep_nasa > np.min(sep):
           print(i,SC.Name[i], sep_nasa, nasa.pl_name[ind[0]], sepnasa[indnasa[0]], nasa.pl_name[indnasa[0]])
+        if sepnasa[indnasa[0]] > 0.01: 
+          print("OIOIOI\n", i,SC.Name[i], sep_nasa, nasa.pl_name[ind[0]], sepnasa[indnasa[0]], nasa.pl_name[indnasa[0]])
 
   #check GAIA_ID coords:
 
@@ -293,6 +297,7 @@ def add_nasa_flag_SC(fileSW):
   for n in range(len(nasanames)):
     sep = coordsnasanames[n].separation(coordSC).arcsecond
     ind = np.where(sep <= np.nanmin(sep))[0]
+    print(ind)
     print(n,len(nasanames), nasanames["star"][n],SC.Name[ind[0]], sep[ind[0]], SC.Database[ind[0]], ind[0], SC.RA_NASA[ind[0]])
     if sep[ind[0]] < 10:
       val = input(colored.green("Accept? ([Y]/N): "))
@@ -316,7 +321,7 @@ def add_nasa_flag_SC(fileSW):
     print(len(droprows))
   nasanames=nasanames.drop(droprows)
   SC.to_csv("update.csv", index=False)
-  nasanames.to_csv("namesnasa_c.txt", index=False, delimiter="\t")
+  nasanames.to_csv("namesnasa_c.txt", index=False, sep="\t", header=False)
 
 
 ### Main program:
@@ -340,13 +345,19 @@ def main():
   #check_missing_SweetCat_ExoEU2(fileSW, "exo.csv")
   #return
 
-##3: Add missing NASA flag (namesnasa.txt):
+#ADD missing and Update file
+
+##3: Check NASA missing:
+  #check_missing_SweetCat_NASA(fileSW, "nasaexo.csv")
+  #return
+
+##4: Add missing NASA flag (namesnasa.txt):
   #add_nasa_flag_SC(fileSW)
   #return
 
-##4: Check NASA missing:
-  #check_missing_SweetCat_NASA(fileSW, "nasaexo.csv")
-  #return
+## use the namesnasa_c and update "update.csv"
+
+## replace update with the dataframe in the end
 
 
 

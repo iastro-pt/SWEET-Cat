@@ -99,7 +99,7 @@ def get_gaiadr2(name):
 def get_gaia_dr3_id(results_ids):
   for name in results_ids[::-1]:
     #print(name[0])
-    if "Gaia EDR3 " in name[0]:
+    if "Gaia DR3 " in name[0]:
       return name[0].split(" ")[-1]
   return -1
 

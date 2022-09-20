@@ -231,7 +231,7 @@ def plot_sky_SC_chart(SC):
   rah = rah.wrap_at(180*u.degree)
 
   fig = plt.figure(figsize=(12,8))
-  fig.patch.set_facecolor('cyan')
+#  fig.patch.set_facecolor('cyan')
   ax = fig.add_subplot(111, projection="mollweide")
 #  ax.scatter(ra.radian, dec.radian, c="darkorange",s=40, alpha=0.75, cmap=cm.brg, label="SWFlag = 0")
 #  ax.scatter(rah.radian, dech.radian, c="deepskyblue",s=30, alpha=0.75, cmap=cm.brg, label="SWFlag = 1")
@@ -239,6 +239,7 @@ def plot_sky_SC_chart(SC):
   ax.scatter(rah.radian, dech.radian, c="deepskyblue",s=30, alpha=0.75, cmap=cm.brg, label="Homogeneous Values")
   ax.set_xticklabels(['14h','16h','18h','20h','22h','0h','2h','4h','6h','8h','10h'])
   ax.set_facecolor('#0b1925')
+
   ax.grid(color='white', linestyle='--', linewidth=0.5)
   [t.set_color('white') for t in ax.xaxis.get_ticklines()]
   [t.set_color('white') for t in ax.xaxis.get_ticklabels()]
@@ -463,13 +464,13 @@ def main():
   SC_full_load = pd.read_csv(sweet_database, dtype=dtype_SW)
   #create_html_table(SC_full_load)
   #SC_stats(SC_full_load, plot_stats=True)
-  #plot_sky_SC_chart(SC_full_load)
+  plot_sky_SC_chart(SC_full_load)
 
   #plot_histograms_parameters(SC_full_load)
 
   #see in the jupyter notebook (SWEET-CAT_Exoeu_link.ipynb) how to create this file
   #get_planet_propreties(load = True)
-  plot_feh_mass_period_all("data_new.csv")
+  #plot_feh_mass_period_all("data_new.csv")
   return
 
 
