@@ -7,6 +7,7 @@ from astropy.io import votable
 import warnings
 import urllib.request, urllib.error, urllib.parse
 from clint.textui import puts, colored 
+import glob
 
 file_path=os.path.dirname(__file__)
 
@@ -324,10 +325,40 @@ def add_nasa_flag_SC(fileSW):
   nasanames.to_csv("namesnasa_c.txt", index=False, sep="\t", header=False)
 
 
+
+def check_spectra_present(fileSW, base_dir = "spectra_database/"):
+  subfolders = ["combined_spec/", "old_spec/", "added_spectra/"]
+  SC = pd.read_csv(fileSW, dtype=dtype_SW)
+  SC_miss_specBase = SC[(SC.SWFlag == 1) & (SC.spec_base.isnull())]
+  if len(SC_miss_specBase) > 0:
+    print("List of homogeneous without spec_base")
+    print(SC_miss_specBase[["Name", "spec_base", "SWFlag"]])
+  else:
+    print("Table with specbase in place")
+
+  ## Checking spec fits in drive
+  spec_bases = np.transpose(SC[SC.SWFlag == 1][["spec_base"]].values)[0]
+  for i in range(len(spec_bases)):
+    fits_file = spec_bases[i]+".fits"
+    allgood = True
+    files = []
+    for sfolder in subfolders:
+      files = files + glob.glob(base_dir+sfolder+fits_file)
+    if len(files) < 1:
+      print("problem: %d - %s  not found" % (i, fits_file))
+      allgood = False
+  if allgood:
+    print("All spectra in Database")
+
+
 ### Main program:
 def main():
 
   fileSW = 'webpage_html/download/SWEETCAT_Dataframe.csv'
+
+## Check spectra in database:
+  check_spectra_present(fileSW)
+  return
 
 ##0 Download exo and nasaexo:
   download_planets = False
