@@ -458,7 +458,6 @@ if __name__ == '__main__':
     exo_all.star_name = exo_all.star_name.str.strip()
     #print(exo_all.star_name)
     output = 'WEBSITE_online_EU-NASA_to_ADD.rdb'
-
     for i, star in enumerate(stars):
         star = star.strip('\n').replace('K0I', 'KOI')
         print(i, star)

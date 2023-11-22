@@ -377,8 +377,8 @@ def main():
   fileSW = 'webpage_html/download/SWEETCAT_Dataframe.csv'
 
 ## Check spectra in database:
-  #check_spectra_present(fileSW)
-  #return
+  check_spectra_present(fileSW)
+  return
 
 ##0 Download exo and nasaexo:
   download_planets = False
@@ -393,8 +393,8 @@ def main():
   #return
 
 ##2: Check EU missing:
-  check_missing_SweetCat_ExoEU2(fileSW, "exo.csv")
-  return
+  #check_missing_SweetCat_ExoEU2(fileSW, "exo.csv")
+  #return
 
 #ADD missing and Update file
 
@@ -403,8 +403,8 @@ def main():
   #return
 
 ##4: Add missing NASA flag (namesnasa.txt):
-  add_nasa_flag_SC(fileSW)
-  return
+  #add_nasa_flag_SC(fileSW)
+  #return
 
 ## use the namesnasa_c and update "update.csv"
 
