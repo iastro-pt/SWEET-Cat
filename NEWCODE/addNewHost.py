@@ -402,7 +402,7 @@ if __name__ == '__main__':
     print(nasa)
     filenamesin = "names.txt"
     if nasa:
-        filenamesin = "namesnasa.txt"
+        filenamesin = "namesnasa_c.txt"
     filenames = open(filenamesin, "r")
     linesnames = filenames.readlines()
     filenames.close()
@@ -877,7 +877,7 @@ if __name__ == '__main__':
                 #getting DR3 data:
                 if gaiadr2 != "-1":
                     gaia_data, std_g_flux = get_gaiadr3_data(gaiadr2, gaiadr3)
-                    if gaia_data == -1:
+                    if gaia_data['Plx'] == -1:
                         print("Trying to search by name:", name)
                         print("Search by other name?: (Enter if not):")
                         name_in = input('> ')

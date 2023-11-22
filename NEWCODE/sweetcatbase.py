@@ -8,6 +8,8 @@ import warnings
 import urllib.request, urllib.error, urllib.parse
 from clint.textui import puts, colored 
 import glob
+import wget
+
 
 file_path=os.path.dirname(__file__)
 
@@ -77,7 +79,7 @@ def remove_planet(name):
         return name[:-4].strip()
     return name
 
-def downloadExoplanet():
+def downloadExoplanet_old():
     """
     Download the table from exoplanetEU and save it to a file (exo.csv).
 
@@ -100,6 +102,21 @@ def downloadExoplanet():
     df[df.planet_status == 'Confirmed'].to_csv('exo.csv', index=False)
     print("Downloading EXO.EU exoplanets... DONE!")
     os.system("rm exo.xml")
+    return
+
+def downloadExoplanet():
+    """
+    Download the table from exoplanetEU and save it to a file (exo.csv).
+
+    Return a pandas DataFrame sorted in 'update'.
+    """
+    print("Downloading EXO.EU exoplanets...")
+    filename = "exo.csv"
+    if os.path.exists(filename):
+      os.remove(filename) # if exist, remove it directly
+    urlexo = "https://exoplanet.eu/catalog/csv"
+    wget.download(urlexo, out=filename)
+    print("Downloading EXO.EU exoplanets... DONE!")
     return
 
 
@@ -135,7 +152,7 @@ def downloadNasaExoplanetNew():
 def check_SW_coordinates(SCcsv, EXOcsv, NASAcsv):
   SC = pd.read_csv(SCcsv, dtype=dtype_SW)
   exo = pd.read_csv(EXOcsv)
-  exo = exo[(exo.detection_type == 'Radial Velocity') | (exo.detection_type == 'Primary Transit') | (exo.detection_type == 'Astrometry') | (exo.detection_type == 'Default')]
+  exo = exo[(exo.detection_type == 'Radial Velocity') | (exo.detection_type == 'Primary Transit') | (exo.detection_type == 'Astrometry') | (exo.detection_type == 'Default') | (exo.detection_type == 'Other')]
   exo = exo.reset_index()
   nasa = pd.read_csv(NASAcsv)
 
@@ -166,16 +183,16 @@ def check_SW_coordinates(SCcsv, EXOcsv, NASAcsv):
   for i in range(len(SC)):
     sep = coordSC[i].separation(coordExo).arcsecond
     sepeu = coordSCEU[i].separation(coordExo).arcsecond
-    ind = np.where(sep <= np.min(sep))[0]
-    indeu = np.where(sepeu <= np.min(sepeu))[0]
+    ind = np.where(sep <= np.nanmin(sep))[0]
+    indeu = np.where(sepeu <= np.nanmin(sepeu))[0]
     if "EU" in SC.Database[i]:
       if np.isnan(SC.RA_EU[i]) or np.isnan(SC.DEC_EU[i]):
         print("missing eu RA DEC:", i, SC.Name[i])
       else:
         sep_eu = coordSC[i].separation(coordSCEU[i]).arcsecond
-        #print(sep_eu, np.nanmin(sep))
-        if sep_eu > np.min(sep):
-          print(i,SC.Name[i], sep_eu, ind[0], exo.name[ind[0]], sepeu[indeu[0]], exo.name[indeu[0]])
+        #print(i, SC.Name[i], sep_eu, np.nanmin(sep), sep_eu > np.nanmin(sep))
+        #if sep_eu > np.nanmin(sep):
+        #  print(i,SC.Name[i], sep_eu, ind[0], exo.name[ind[0]], sepeu[indeu[0]], exo.name[indeu[0]])
         if sepeu[indeu[0]] > 0.01: 
           print("OIOIOI\n",i,SC.Name[i], sep_eu, ind[0], exo.name[ind[0]], sepeu[indeu[0]], exo.name[indeu[0]])
 
@@ -192,8 +209,8 @@ def check_SW_coordinates(SCcsv, EXOcsv, NASAcsv):
       else:
         sep_nasa = coordSC[i].separation(coordSCNASA[i]).arcsecond
         #print(sep_nasa, np.nanmin(sep))
-        if sep_nasa > np.min(sep):
-          print(i,SC.Name[i], sep_nasa, nasa.pl_name[ind[0]], sepnasa[indnasa[0]], nasa.pl_name[indnasa[0]])
+        #if sep_nasa > np.min(sep):
+        #  print(i,SC.Name[i], sep_nasa, nasa.pl_name[ind[0]], sepnasa[indnasa[0]], nasa.pl_name[indnasa[0]])
         if sepnasa[indnasa[0]] > 0.01: 
           print("OIOIOI\n", i,SC.Name[i], sep_nasa, nasa.pl_name[ind[0]], sepnasa[indnasa[0]], nasa.pl_name[indnasa[0]])
 
@@ -225,6 +242,9 @@ def check_missing_SweetCat_ExoEU2(SCcsv, EXOcsv):
   names_eu_to_add = []
   exo_iloc = []
   for p in range(len(exo)):
+    if np.isnan(coordExo[p].ra) or np.isnan(coordExo[p].dec):
+      print(exo.name[p], "has problems with star's coordinate")
+      continue
     sep = coordExo[p].separation(coordSCEU).arcsecond
     sep = np.array([1e10 if s is None else s for s in sep])
     ind = np.where(sep <= np.nanmin(sep))[0]
@@ -357,8 +377,8 @@ def main():
   fileSW = 'webpage_html/download/SWEETCAT_Dataframe.csv'
 
 ## Check spectra in database:
-  check_spectra_present(fileSW)
-  return
+  #check_spectra_present(fileSW)
+  #return
 
 ##0 Download exo and nasaexo:
   download_planets = False
@@ -369,12 +389,12 @@ def main():
 
 
 ##1: Check coordinates:
-  check_SW_coordinates(fileSW, "exo.csv", "nasaexo.csv")
-  return
+  #check_SW_coordinates(fileSW, "exo.csv", "nasaexo.csv")
+  #return
 
 ##2: Check EU missing:
-  #check_missing_SweetCat_ExoEU2(fileSW, "exo.csv")
-  #return
+  check_missing_SweetCat_ExoEU2(fileSW, "exo.csv")
+  return
 
 #ADD missing and Update file
 
@@ -383,8 +403,8 @@ def main():
   #return
 
 ##4: Add missing NASA flag (namesnasa.txt):
-  #add_nasa_flag_SC(fileSW)
-  #return
+  add_nasa_flag_SC(fileSW)
+  return
 
 ## use the namesnasa_c and update "update.csv"
 
