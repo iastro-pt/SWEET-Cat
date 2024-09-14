@@ -510,14 +510,14 @@ def main():
   #return
 
 ##2: Check EU missing:
-  check_missing_SweetCat_ExoEU2(fileSW, "exo.csv")
-  return
+  #check_missing_SweetCat_ExoEU2(fileSW, "exo.csv")
+  #return
 
 #ADD missing and Update file
 
 ##3: Check NASA missing:
-  #check_missing_SweetCat_NASA(fileSW, "nasaexo.csv")
-  #return
+  check_missing_SweetCat_NASA(fileSW, "nasaexo.csv")
+  return
 
 ##4: Add missing NASA/EU flag (namesnasa.txt):
   #add_nasa_flag_SC(fileSW)
