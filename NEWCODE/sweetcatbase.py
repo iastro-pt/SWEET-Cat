@@ -72,6 +72,11 @@ def remove_planet(name):
     for planet in planets:
         if name.endswith(' %s' % planet):
             return name[:-2].strip()
+        if name.endswith(' A%s' % planet):
+            return name[:-1].strip()
+        if name.endswith(' B%s' % planet):
+            return name[:-1].strip()
+
     # some exoplanets have .01 or .02 in the name 
     if name.endswith('.01') or name.endswith('.02') or name.endswith('.2'):
         return name[:-3].strip()    
@@ -152,7 +157,8 @@ def downloadNasaExoplanetNew():
 def check_SW_coordinates(SCcsv, EXOcsv, NASAcsv):
   SC = pd.read_csv(SCcsv, dtype=dtype_SW)
   exo = pd.read_csv(EXOcsv)
-  exo = exo[(exo.detection_type == 'Radial Velocity') | (exo.detection_type == 'Primary Transit') | (exo.detection_type == 'Astrometry') | (exo.detection_type == 'Default') | (exo.detection_type == 'Other')]
+#  print(np.unique(exo.detection_type))
+#  exo = exo[(exo.detection_type == 'Radial Velocity') | (exo.detection_type == 'Radial Velocity, Astrometry') | (exo.detection_type == 'Primary Transit') | (exo.detection_type == 'Astrometry') | (exo.detection_type == 'Default') | (exo.detection_type == 'Other')]
   exo = exo.reset_index()
   nasa = pd.read_csv(NASAcsv)
 
@@ -221,10 +227,76 @@ def check_SW_coordinates(SCcsv, EXOcsv, NASAcsv):
   return
 
 
+
+def askFix_SW_coordinates(SCcsv, EXOcsv, NASAcsv):
+  SC = pd.read_csv(SCcsv, dtype=dtype_SW)
+  exo = pd.read_csv(EXOcsv)
+  exo = exo[(exo.detection_type == 'Radial Velocity') | (exo.detection_type == 'Radial Velocity, Astrometry') | (exo.detection_type == 'Primary Transit') | (exo.detection_type == 'Astrometry') | (exo.detection_type == 'Default') | (exo.detection_type == 'Other')]
+  exo = exo.reset_index()
+  nasa = pd.read_csv(NASAcsv)
+
+
+  coordSC     = coord.SkyCoord(ra=SC['RA'].values,
+                               dec=SC['DEC'].values,
+                               unit=(u.hourangle, u.deg),
+                               frame='icrs')
+  coordSCEU   = coord.SkyCoord(ra=SC['RA_EU'].values,
+                               dec=SC['DEC_EU'].values,
+                               unit=(u.deg, u.deg),
+                               frame='icrs')
+  coordSCNASA = coord.SkyCoord(ra=SC['RA_NASA'].values,
+                               dec=SC['DEC_NASA'].values,
+                               unit=(u.deg, u.deg),
+                               frame='icrs')
+  coordExo    = coord.SkyCoord(ra=exo['ra'].values,
+                               dec=exo['dec'].values,
+                               unit=(u.deg, u.deg),
+                               frame='icrs')
+  coordNasa   = coord.SkyCoord(ra=nasa['ra'].values,
+                               dec=nasa['dec'].values,
+                               unit=(u.deg, u.deg),
+                               frame='icrs')
+
+  #check EU
+  print("Checking EU:\n")
+  for i in range(len(SC)):
+    sep = coordSC[i].separation(coordExo).arcsecond
+    sepeu = coordSCEU[i].separation(coordExo).arcsecond
+    ind = np.where(sep <= np.nanmin(sep))[0]
+    indeu = np.where(sepeu <= np.nanmin(sepeu))[0]
+    if "EU" in SC.Database[i]:
+      if np.isnan(SC.RA_EU[i]) or np.isnan(SC.DEC_EU[i]):
+        print("missing eu RA DEC:", i, SC.Name[i])
+      else:
+        sep_eu = coordSC[i].separation(coordSCEU[i]).arcsecond
+        #print(i, SC.Name[i], sep_eu, np.nanmin(sep), sep_eu > np.nanmin(sep))
+        #if sep_eu > np.nanmin(sep):
+        #  print(i,SC.Name[i], sep_eu, ind[0], exo.name[ind[0]], sepeu[indeu[0]], exo.name[indeu[0]])
+        if sepeu[indeu[0]] > 0.01: 
+          print("OIOIOI\n",i,SC.Name[i], sep_eu, ind[0], exo.name[ind[0]], sepeu[indeu[0]], exo.name[indeu[0]])
+          var = input('Update Coordinates? [Y/N]: ')
+          if var.upper() == 'Y':
+            print("Need to update:",exo.name[ind[0]],exo.ra[ind[0]], exo.dec[ind[0]])
+            print("BEFORE:", SC.RA_EU[i],SC.DEC_EU[i])
+            SC.RA_EU[i] = exo.ra[ind[0]]
+            SC.DEC_EU[i] = exo.dec[ind[0]]
+            print("AFTER", SC.RA_EU[i],SC.DEC_EU[i])
+
+  SC.to_csv('SWEETCAT_Dataframe_updatedCoords.csv', index=False)
+
+
 def check_missing_SweetCat_ExoEU2(SCcsv, EXOcsv):
   exo = pd.read_csv(EXOcsv)
   SC = pd.read_csv(SCcsv, dtype=dtype_SW)
-  exo = exo[(exo.detection_type == 'Radial Velocity') | (exo.detection_type == 'Primary Transit') | (exo.detection_type == 'Astrometry')]
+  print(np.unique(exo.detection_type))
+  allow_detection_list = ['Radial Velocity', 'Primary Transit', 'Astrometry', 'Imaging, Astrometry', 'Imaging, Other, Astrometry',
+ 'Imaging, Primary Transit', 'Imaging, Radial Velocity, Astrometry', 'Other, Radial Velocity', 'Primary Transit, Astrometry', 
+ 'Primary Transit, Radial Velocity', 'Primary Transit, TTV', 'Radial Velocity, Astrometry',  'Radial Velocity, Imaging',
+ 'Radial Velocity, Other', 'Radial Velocity, Primary Transit', 'Radial Velocity, Timing', 'Timing, Astrometry']
+  exo = exo[(exo.detection_type.apply(lambda x: x in allow_detection_list))]
+  print(np.unique(exo.detection_type))
+  exo =  exo[(exo.planet_status == 'Confirmed')  & (exo.star_name.notna())]
+#  exo = exo[(exo.detection_type == 'Radial Velocity') | (exo.detection_type == 'Primary Transit') | (exo.detection_type == 'Astrometry')]
   exo = exo.reset_index()
   coordExo = coord.SkyCoord(ra=exo['ra'].values,
                             dec=exo['dec'].values,
@@ -257,7 +329,9 @@ def check_missing_SweetCat_ExoEU2(SCcsv, EXOcsv):
   fileadd = open("names.txt", 'w')
   for n in names_eu_to_add_u:
     p = exo_iloc[names_eu_to_add.index(n)]
-    fileadd.write(str(n)+"\t"+str(exo['ra'][p])+"\t"+str(exo['dec'][p])+"\t"+str(exo['star_teff'][p])+"\t"+str(exo['mag_v'][p])+"\n")
+    ####ATENTION Including a limit of maximum mass from exoplanet.eu
+    if exo['mass'][p] < 20 or exo['mass'][p] is None:
+      fileadd.write(str(n)+"\t"+str(exo['ra'][p])+"\t"+str(exo['dec'][p])+"\t"+str(exo['star_teff'][p])+"\t"+str(exo['mag_v'][p])+"\t"+str(exo['mass'][p])+"\n")
 
   fileadd.close()
   print(names_eu_to_add)
@@ -345,9 +419,51 @@ def add_nasa_flag_SC(fileSW):
   nasanames.to_csv("namesnasa_c.txt", index=False, sep="\t", header=False)
 
 
+def add_EU_flag_SC(fileSW):
+  SC = pd.read_csv(fileSW, dtype=dtype_SW)
+  eunames = pd.read_csv("names.txt", delimiter="\t", names=["star","ra","dec", "teff", "magv", "mass"])
+  coordseunames = coord.SkyCoord(ra=eunames['ra'].values,
+                               dec=eunames['dec'].values,
+                               unit=(u.deg, u.deg), frame='icrs')
+  coordSC     = coord.SkyCoord(ra=SC['RA'].values,
+                               dec=SC['DEC'].values,
+                               unit=(u.hourangle, u.deg),
+                               frame='icrs')
+  droprows = []
+  for n in range(len(eunames)):
+    sep = coordseunames[n].separation(coordSC).arcsecond
+    ind = np.where(sep <= np.nanmin(sep))[0]
+    print(ind)
+    print(n,len(eunames), eunames["star"][n], SC.Name[ind[0]], sep[ind[0]], SC.Database[ind[0]], ind[0], SC.RA_EU[ind[0]])
+    if sep[ind[0]] < 10:
+      val = input(colored.green("Accept? ([Y]/N): "))
+      if val == "" or val.upper() == "Y":
+        val = True
+      else:
+        val = False
+    else:
+      val = input(colored.red("Accept? (Y/[N]): "))
+      if val == "" or val.upper() == "N":
+        val = False
+      else:
+        val = True
+    print(val)
+    if val:
+      SC.at[ind[0],"Database"] = "EU,NASA"
+      droprows.append(n)
+      SC.at[ind[0],"RA_EU"] = coordseunames[n].ra.value
+      SC.at[ind[0],"DEC_EU"] = coordseunames[n].dec.value
+    print(eunames["star"][n],SC.Name[ind[0]], sep[ind[0]], SC.Database[ind[0]])
+    print(len(droprows))
+  eunames=eunames.drop(droprows)
+  SC.to_csv("update.csv", index=False)
+  eunames.to_csv("names_c.txt", index=False, sep="\t", header=False)
+
+
+
 
 def check_spectra_present(fileSW, base_dir = "spectra_database/"):
-  subfolders = ["combined_spec/", "old_spec/", "added_spectra/"]
+  subfolders = ["combined_spec/", "old_spec/", "added_spectra/", "added_spectra/mstar_spectra/SWEETCAT_PARAMETERS_SPECTRA/"]
   SC = pd.read_csv(fileSW, dtype=dtype_SW)
   SC_miss_specBase = SC[(SC.SWFlag == 1) & (SC.spec_base.isnull())]
   if len(SC_miss_specBase) > 0:
@@ -377,8 +493,8 @@ def main():
   fileSW = 'webpage_html/download/SWEETCAT_Dataframe.csv'
 
 ## Check spectra in database:
-  check_spectra_present(fileSW)
-  return
+#  check_spectra_present(fileSW)
+#  return
 
 ##0 Download exo and nasaexo:
   download_planets = False
@@ -390,11 +506,12 @@ def main():
 
 ##1: Check coordinates:
   #check_SW_coordinates(fileSW, "exo.csv", "nasaexo.csv")
+  #askFix_SW_coordinates(fileSW, "exo.csv", "nasaexo.csv")
   #return
 
 ##2: Check EU missing:
-  #check_missing_SweetCat_ExoEU2(fileSW, "exo.csv")
-  #return
+  check_missing_SweetCat_ExoEU2(fileSW, "exo.csv")
+  return
 
 #ADD missing and Update file
 
@@ -402,9 +519,10 @@ def main():
   #check_missing_SweetCat_NASA(fileSW, "nasaexo.csv")
   #return
 
-##4: Add missing NASA flag (namesnasa.txt):
+##4: Add missing NASA/EU flag (namesnasa.txt):
   #add_nasa_flag_SC(fileSW)
-  #return
+  add_EU_flag_SC(fileSW)
+  return
 
 ## use the namesnasa_c and update "update.csv"
 

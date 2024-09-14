@@ -402,7 +402,8 @@ if __name__ == '__main__':
     print(nasa)
     filenamesin = "names.txt"
     if nasa:
-        filenamesin = "namesnasa_c.txt"
+        filenamesin = "namesnasa.txt"
+        #filenamesin = "namesnasa_c.txt"
     filenames = open(filenamesin, "r")
     linesnames = filenames.readlines()
     filenames.close()
@@ -463,6 +464,7 @@ if __name__ == '__main__':
         print(i, star)
         #exo = exo_all[exo_all.star_name == star]
         exo = exo_all[(exo_all.ra == ra_stars[i]) & (exo_all.dec == dec_stars[i])]
+        print(exo)
         exo = exo.reset_index(drop=True)
         #exo = exo.iloc[0]
         next = True
