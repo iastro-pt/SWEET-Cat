@@ -910,7 +910,7 @@ if __name__ == '__main__':
                 print(gaia_data)
 
                 new_row = pd.DataFrame([], columns=columns_SW)
-                new_row = new_row.append({"Name": "Empty"}, ignore_index = True)
+                new_row = new_row._append({"Name": "Empty"}, ignore_index = True)
                 new_row["Name"]         = name
                 new_row["hd"]           = HD
                 new_row["RA"]           = RA

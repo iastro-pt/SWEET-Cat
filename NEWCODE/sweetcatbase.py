@@ -463,7 +463,7 @@ def add_EU_flag_SC(fileSW):
 
 
 def check_spectra_present(fileSW, base_dir = "spectra_database/"):
-  subfolders = ["combined_spec/", "old_spec/", "added_spectra/", "added_spectra/mstar_spectra/SWEETCAT_PARAMETERS_SPECTRA/"]
+  subfolders = ["combined_spec/", "old_spec/", "added_spectra/", "added_spectra/mstar_spectra/SWEETCAT_PARAMETERS_SPECTRA/", "added_spectra/new_spec2022/", "added_spectra/new_spec2023/"]
   SC = pd.read_csv(fileSW, dtype=dtype_SW)
   SC_miss_specBase = SC[(SC.SWFlag == 1) & (SC.spec_base.isnull())]
   if len(SC_miss_specBase) > 0:
@@ -493,8 +493,8 @@ def main():
   fileSW = 'webpage_html/download/SWEETCAT_Dataframe.csv'
 
 ## Check spectra in database:
-#  check_spectra_present(fileSW)
-#  return
+  #check_spectra_present(fileSW)
+  #return
 
 ##0 Download exo and nasaexo:
   download_planets = False
@@ -510,14 +510,14 @@ def main():
   #return
 
 ##2: Check EU missing:
-  check_missing_SweetCat_ExoEU2(fileSW, "exo.csv")
+  #check_missing_SweetCat_ExoEU2(fileSW, "exo.csv")
   #return
 
 #ADD missing and Update file
 
 ##3: Check NASA missing:
-  #check_missing_SweetCat_NASA(fileSW, "nasaexo.csv")
-  #return
+  check_missing_SweetCat_NASA(fileSW, "nasaexo.csv")
+  return
 
 ##4: Add missing NASA/EU flag (namesnasa.txt):
   #add_nasa_flag_SC(fileSW)
